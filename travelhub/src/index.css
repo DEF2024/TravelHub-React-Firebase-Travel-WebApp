@@ -125,7 +125,7 @@ nav button{
 
  /* ===start section home === */
  .home{
-    background-color: #1c1b1bfb;
+  background: radial-gradient(circle at top center, #42587b 0%, #020b21 100%);
     color: white;
     display: flex;
     justify-content: center;
@@ -329,5 +329,209 @@ input{
     border-radius: 20px;
     /* padding:5px; */
 }
+/* ========End Destinations======= */
+
+/* =====Start Login===== */
+/* Container holding the entire screen */
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top center, #1e293b 0%, #0f172a 100%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #f8fafc;
+  padding: 1rem;
+}
+
+/* Header Text and Logo styles */
+.login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.globe-icon {
+  width: 24px;
+  height: 24px;
+  color: #fbbf24;
+}
+
+.brand-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fbbf24;
+  letter-spacing: 0.5px;
+}
+
+.login-header h1 {
+  font-size: 2rem;
+  font-family: "Georgia", serif; /* Gives the elegant serif look from the image */
+  margin: 0 0 0.5rem 0;
+  color: #ffffff;
+}
+
+.login-header p {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* The dark grey login card */
+.login-box {
+  background-color: #1e293b;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+
+/* Input Fields & Labels */
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  margin-bottom: 0.5rem;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  width: 18px;
+  height: 18px;
+  color: #64748b;
+}
+
+.input-wrapper input {
+  width: 100%;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  color: #f8fafc;
+  padding: 0.85rem 1rem 0.85rem 3rem; /* Left padding makes room for the icon */
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.input-wrapper input::placeholder {
+  color: #475569;
+}
+
+.input-wrapper input:focus {
+  border-color: #fbbf24;
+}
+
+/* Toggle Password Eye Icon */
+.toggle-password {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.toggle-password svg {
+  width: 18px;
+  height: 18px;
+}
+
+.toggle-password:hover {
+  color: #cbd5e1;
+}
+
+.login-submit-btn {
+  width: 100%;
+  background-color: #f59e0b;
+  color: #000000;
+  border: none;
+  padding: 0.85rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  transition: background-color 0.2s;
+}
+
+.login-submit-btn:hover {
+  background-color: #d97706;
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+
+.login-footer {
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+.login-footer a {
+  color: #f59e0b;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+}
+/* =====end Login===== */
+
+
+/* ====Start Home-4==== */
+.home-4{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #cbd5e1;
+    margin-top: 40px;
+}
+.home-4 h1{
+    font-size: 38px;
+    margin-bottom: 14px;
+}
+.home-4 p{
+    margin-left: 27px;
+    margin-bottom: 20px;
+}
+.home-4 button{
+   margin: 20px;
+   padding: 10px 30px;
+   margin-bottom: 100px;
+}
+/* ====End Home-4==== */
 
 

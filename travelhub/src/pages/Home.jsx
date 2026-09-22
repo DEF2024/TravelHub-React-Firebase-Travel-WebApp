@@ -89,10 +89,15 @@ function Home() {
         </div>
         
     </section>
-    <hr />    
+   
+    <section className="home-4">
+        <div className="box-1">
+             <h1>Ready to Start Your Adventure?</h1>
+             <p>Join thousands of travelers who plan unforgettable trips with TravelHub</p>
+            <button className="btu-3">Create Free Account</button>
+            <button className="btu-3">Browse Destinations</button>
+        </div>
 
-    <section className="home-3">
-        
     </section>
 
     </main>
