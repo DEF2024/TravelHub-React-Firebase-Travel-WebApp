@@ -10,8 +10,8 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Destinations from "./pages/Destinations";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 
-// 2. Create a Layout component containing the Navbar and Footer
 const Layout = () => {
   return (
     <>
@@ -26,13 +26,13 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        
         <Route element={<Layout />}>
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<Home />} />
           <Route path="/destinations" element={<Destinations />} />
         </Route>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
       </Routes>
     </BrowserRouter>

@@ -20,7 +20,7 @@ function Home() {
         <div className="home-1-content">
             <i class="fa-solid fa-compass"></i>
             <h1>500+</h1>
-            <p>Destinations</p>
+            <p>Destinations</p> 
         </div>
         <div className="home-1-content">
           <div></div>
@@ -95,7 +95,7 @@ function Home() {
              <h1>Ready to Start Your Adventure?</h1>
              <p>Join thousands of travelers who plan unforgettable trips with TravelHub</p>
             <button className="btu-3">Create Free Account</button>
-            <button className="btu-3">Browse Destinations</button>
+            <button className="btu-4">Browse Destinations</button>
         </div>
 
     </section>
