@@ -24,7 +24,6 @@ function Destinations(){
         </section>
 
         <section className="travel-enjor">
-            
         </section>
 
         </main>

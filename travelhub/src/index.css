@@ -87,10 +87,12 @@ nav a:hover{
     font-size: 17px;
     margin-bottom: 20px;
 }
-.footer-buttom p{
+footer p{
     font-size: 14px;
-    color: rgba(250, 252, 252, 0.73);
+    color: rgba(0, 0, 0, 0.622);
     line-height: 20px;
+    margin-top: -18px;
+    margin-left: 30px;
 }
 .footer-buttom ul{
     /* display: flex; */
@@ -105,11 +107,8 @@ nav a:hover{
    
 
 }
-.footer-buttom h2{
-    font-size: 20px;
-    margin-bottom: 12px;
-    color: rgba(251, 251, 251, 0.849);
-
+.footer-2 p{
+  margin-top: 10px;
 }
 .row{
     display: flex;
@@ -117,10 +116,20 @@ nav a:hover{
     align-items: center;
 }
 .footer-input input{
-   padding:9px 1px;
-}
-.footer-input,.submit{
     padding: 10px 8px;
+    border: none;
+    margin: 2px;
+    /* width: 20px; */
+    /* height: 10px; */
+  }
+  .submit{
+    cursor: pointer;
+    border-radius: 10px;
+    padding: 10px 20px;
+    border: none;
+}
+.submit:hover{
+  background-color: #f59e0b;
 }
 
  /* ===end footer=== */

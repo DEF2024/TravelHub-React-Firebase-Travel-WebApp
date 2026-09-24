@@ -18,23 +18,23 @@ function Home() {
 
     <section className="home-1">
         <div className="home-1-content">
-            <i class="fa-solid fa-compass"></i>
+            <i className="fa-solid fa-compass"></i>
             <h1>500+</h1>
             <p>Destinations</p> 
         </div>
         <div className="home-1-content">
           <div></div>
-          <i class="fa-regular fa-user-group"></i>
+          <i className="fa-regular fa-user-group"></i>
             <h1>10K+</h1>
             <p>Happy Travelers</p>
         </div>
         <div className="home-1-content">
-           <i class="fa-regular fa-map"></i>
+           <i className="fa-regular fa-map"></i>
             <h1>28+</h1>
             <p>States Covered</p>
         </div>
         <div className="home-1-content">
-            <i class="fa-solid fa-compass"></i>
+            <i className="fa-solid fa-compass"></i>
             <h1>100%</h1>
             <p>Safe & Verified</p>
         </div>

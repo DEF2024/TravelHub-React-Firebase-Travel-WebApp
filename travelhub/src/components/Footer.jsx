@@ -6,7 +6,7 @@ function Footer() {
       <div className="wrapper footer-1">
         <div className="row">
           <div className="footer-bottom">
-                    <div className="brand-logo">
+            <div className="brand-logo">
           <svg className="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="2" y1="12" x2="22" y2="12"></line>
@@ -43,7 +43,7 @@ function Footer() {
             </ul>
           </div>
 
-          <div className="footer-bottom">
+          <div className="footer-bottom footer-2">
             <h2>TRAVEL INSPIRATION</h2>
             <p>
               Get curated travel tips
@@ -53,9 +53,7 @@ function Footer() {
 
             <form className="footer-input">
               <input type="email" placeholder="Name@example.com" required />
-              <button type="submit" className="submit">
-                Submit
-              </button>
+              <button type="submit" className="submit">Submit</button>
             </form>
           </div>
         </div>
