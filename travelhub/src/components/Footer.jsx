@@ -28,18 +28,18 @@ function Footer() {
           <div className="footer-bottom">
             <h2>EXPLORE</h2>
             <ul>
-              <li className="footer-link"><Link to="/destinations">Destinations</Link></li>
-              <li><Link to="/destinations">Featured Places</Link></li>
-              <li><Link to="/home">Plan a Trip</Link></li>
+              <li className="footer-link"><Link to="/destinations" className="footer-link">Destinations</Link></li>
+              <li className="footer-link"><Link to="/destinations" className="footer-link">Featured Places</Link></li>
+              <li className="footer-link"><Link to="/home" className="footer-link">Plan a Trip</Link></li>
             </ul>
           </div>
 
           <div className="footer-bottom">
             <h2>ACCOUNT</h2>
             <ul>
-              <li><Link to="/home">Dashboard</Link></li>
-              <li><Link to="/home">My Trips</Link></li>
-              <li><Link to="/home">Profile</Link></li>
+              <li className="footer-link"><Link to="/home" className="footer-link">Dashboard</Link></li>
+              <li className="footer-link"><Link to="/home" className="footer-link">My Trips</Link></li>
+              <li className="footer-link"><Link to="/home" className="footer-link">Profile</Link></li>
             </ul>
           </div>
 

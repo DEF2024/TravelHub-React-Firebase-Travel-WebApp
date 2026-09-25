@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Destinations from "./pages/Destinations";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+// import App from "./src/App";
 
 const Layout = () => {
   return (
