@@ -18,25 +18,74 @@ hr{
   margin-right: auto;
   max-width: 1500px;
 }
+.app-nav .brand-logo {
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+.app-nav li {
+  margin-bottom: 10px;
+  margin-left: 60px;
+  padding: 5px;
+  border-radius: 5px;
+  width: 90%;
+  text-align: center;
+}
+.app-nav ul {
+  margin-bottom: 20px;
+}
+.brand-logo svg {
+  width: 32px;
+  height: 32px;
+  fill: #90ee90;
+  margin-right: 10px;
+}
+.app-nav {
+  display: none;
+}
+.app-nav .btn-container {
+  margin-left: 60px;
+  gap:20px;
+}
+.app-nav .close-nav {
+  fill: #FFFFFF;
+  position: absolute;
+  right: 20px;
+  top: 16px;
+}
+.app-nav .close-nav:hover {
+  fill: #ff0000;
+}
 nav{
+  width: 100%;
     background-color: #000000ee;
     display: flex;
     justify-content:space-between;
     align-items: center;
-    padding: 20px 20px;
-    margin: 0;
+    height: 70px;
+    padding: 0px 30px;
 }
 nav ul{
     display: flex;
-    list-style: none;
-    margin-left: 130px;
+    gap: 20px;
 }
-nav ul li{
-    margin: 0 10px;
-
+nav li {
+  position: relative;
+}
+nav li::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0;
+  height: 3px;
+  background: white;
+  transition: width 0.4s ease;
+}
+nav li:hover::after {
+  width: 100%;
 }
 nav i{
-    color: rgba(122, 120, 120, 0.972);
+    color: #7a7878f8;
     font-size: 20px;
 }
 .fa-regular a{
@@ -47,21 +96,20 @@ nav i{
 }
 nav a{
     text-decoration: none;
-    color: rgba(122, 120, 120, 0.972);
+    color: #7a7878f8;
     font-size: 20px;
-    margin-left: 50px;
 }
 nav a:hover{
  color: white;
 }
 .btn-2:hover{
-    color: hsla(47, 100%, 51%, 0.959);
-    background-color: hsla(43, 94%, 63%, 0.454);
+    color: #ffc905f5;
+    background-color: #f9c74874;
     border-radius: 15px;
     transform: scale(1.2);
 }
 .btn-2{
-  color: rgb(255, 255, 255);
+  color: #ffffff;
   background-color: #334155;
   padding: 13px;
   border-radius: 20px;
@@ -69,8 +117,14 @@ nav a:hover{
 .btn-1{
   padding: 10px;
   border-radius: 30px;
-  color: whitesmoke;
-} 
+  color: #f5f5f5;
+}
+.mean-nav {
+  display: none;
+}
+.close-nav {
+  display: none;
+}
  /* ===end nav=== */
 
  /* ===start footer === */
@@ -81,6 +135,9 @@ nav a:hover{
 .footer-buttom,.wrold{
     font-size: 17px;
     margin-bottom: 20px;
+}
+.footer-text{
+    margin-top: 10px;
 }
 .footer-bottom h2{
     color: #f7f6f89f;
@@ -103,8 +160,6 @@ footer p{
     color: rgba(191, 25, 25, 0.849);
     font-size: 14px;
     line-height: 25px;
-   
-
 }
 .footer-2 p{
   margin-top: 10px;
@@ -113,6 +168,8 @@ footer p{
     display: flex;
     justify-content:space-around;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 .footer-input input{
     padding: 10px 8px;
@@ -150,16 +207,17 @@ span{
     margin-top: 70px;
 }   
 .home-content h1{
-    font-size: 50px;
+    font-size: clamp(40px, 4vw, 50px);
     margin-bottom: 10px;
 }
 .home-content p{
-    font-size: 20px;
+    font-size: clamp(16px, 1.5vw, 20px);
     margin-bottom: 20px;
     line-height: 30px;
 }
 .search-button {
   background: linear-gradient(to right, #59a9ffa5, #7ff36294);
+  font-size: clamp(16px, 1.8vw, 24px);
 }
 .search-container, .search-button{
     color: white;
@@ -190,6 +248,7 @@ input{
     justify-content:space-between;
     align-items: center;
     padding: 60px 60px;
+    flex-shrink: 0;
 }
 .home-1-content{
     text-align: center;
@@ -219,11 +278,11 @@ input{
     text-align: center;
 }
 .home-2-content h1{
-    font-size: 40px; 
+    font-size:clamp(30px, 4vw, 40px); 
     margin-bottom: 10px;
 }
 .home-2-content p{
-    font-size: 16px;
+    font-size: clamp(16px, 1.5vw, 20px);
     margin-bottom: 20px;
 }
 .home-2-font-row {
@@ -233,6 +292,7 @@ input{
   display: flex;
   gap: 20px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 .home-2-button {
   color: white;
@@ -241,6 +301,7 @@ input{
   border-radius: 5px;
   cursor: pointer;
   background: linear-gradient(to right, #59a9ffa5, #7ff36294);
+  font-size: clamp(14px, 1.2vw, 18px);
 }
 .home-2-row-in {
   margin-bottom: 20px;
@@ -281,11 +342,11 @@ input{
     flex-direction: column;
 }
 .title-container h1{
-    font-size: 40px;
+    font-size: clamp(30px, 4vw, 40px);
     margin-bottom: 15px;
 }
 .title-container p{
-    font-size: 18px;
+    font-size: clamp(16px, 1.5vw, 20px);
     margin-top: 10px;
     margin-bottom: 20px;
 }
@@ -311,6 +372,9 @@ input{
     justify-content:space-evenly;
     align-items: center;
     margin-top:40px ;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    gap: 20px;
 }
 .card-options p{
     max-width: 90px;
@@ -332,22 +396,28 @@ input{
 .title{
   background: radial-gradient(circle at top center, #42587b 0%, #020b21 100%);
   padding: 40px;
-    
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.title-travel{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 .title-travel h1{
-   font-size: 50px;
+   font-size: clamp(30px, 4vw, 40px);
    color: white;
    margin-bottom: 13px;
-   margin-left: 320px;
 }
 .title-travel p{
-    font-size: 18px;
+    font-size: clamp(16px, 1.5vw, 20px);
     color: rgb(175, 174, 174);
-    margin-left: 320px;
     margin-bottom: 20px;
 }
 .label-1{
-  margin-left: 220px;
   padding: 30px 170px;
 }
 .travel-where ul  {
@@ -362,7 +432,6 @@ input{
 .travel-where li a{
     margin: 10px;
     align-items: center;
-
 }
 .travel-where, .border:hover{
     color: hsla(47, 100%, 51%, 0.959);
@@ -390,8 +459,6 @@ input{
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
 }
 .logo-circle {
   background-color: #fcd34d;
@@ -405,7 +472,7 @@ input{
 .globe-icon {
   width: 20px;
   height: 20px;
-  color: #0f172a; 
+  color: #1d4ec1; 
 }
 .brand-name {
   font-size: 1.25rem;
@@ -547,11 +614,12 @@ input{
 }
 .home-4 h1{
     margin-top: 70px;
-    font-size: 38px;
+    font-size: clamp(30px, 4vw, 40px);
     margin-bottom: 14px;
 }
 .home-4 p{
     margin-bottom: 20px;
+    font-size: clamp(16px, 1.5vw, 20px);
 }
 .home-4 button{
    margin: 20px;
@@ -560,9 +628,8 @@ input{
    border: none;
    border-radius: 10px;
    background: linear-gradient(to right, #59a9ff, #7ff36294);
+   font-size: clamp(16px, 1.5vw, 20px);
 }
-
-
 /* ====End Home-4==== */
 
 /* ====start register===== */
@@ -580,13 +647,6 @@ input{
 .login-header {
   text-align: center;
   margin-bottom: 2rem;
-}
-.brand-logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
 }
 .logo-circle {
   background-color: #fcd34d;

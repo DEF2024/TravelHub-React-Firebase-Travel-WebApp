@@ -1,0 +1,47 @@
+@media screen and (max-width: 768px) {
+    /* ===start navbear=== */
+    .web-nav ul,.web-nav .btn-container {
+        display: none;
+    }
+    .web-nav .mean-nav {
+        display: block;
+    }
+    .app-nav .close-nav {
+        display: block;
+    }
+    .app-nav {
+        display: block;
+        width: 0;
+        height: 100%;
+        z-index: 1;
+        position: fixed;
+        left: -60px;
+        top: 0;
+        overflow-x: hidden;
+        justify-content: start;
+        flex-direction: column;
+        transition: width 0.5s ease 0s;
+    }
+    .app-nav-active {
+        width: 60%;
+    }
+    .app-nav ul {
+        align-items: center;
+        flex-direction: column;
+    }
+    nav ul{
+        gap: 0px;
+    }
+    .app-nav .btn-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+    /*===end navbear=== */
+    /* ==start home-1=== */
+    .home-1 {
+        flex-wrap: wrap;
+    }
+    /* ===end section home-1===  */
+}

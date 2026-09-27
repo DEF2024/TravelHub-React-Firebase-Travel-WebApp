@@ -106,36 +106,36 @@ function Home() {
             <p>Find your perfect type of getaway</p>
         </div>
         <div className="card-1">
-        <div className="card-options card">
-            <p className="imager">🌿</p>
-            <h4>Nature</h4>
-            <p>Forests, wildlife & greenery</p>
-        </div>
-         <div className="card-options card">
-            <p className="imager">🏖️</p>
-            <h4> Beach</h4>
-            <p>Coastal gems & sunsets</p>
-        </div>
-         <div className="card-options card">
-            <p className="imager">🏛️</p>
-            <h4>Heritage</h4>
-            <p>History & architecture</p>
-        </div>
-        <div className="card-options card">
-            <p className="imager">⛰️</p>
-            <h4>Adventure</h4>
-            <p>Thrills & exploration</p>
-        </div>
-          <div className="card-options card-2">
-            <p className="imager">🌆</p>
-            <h4>City</h4>
-            <p>Urban life & culture</p>
-        </div>
-        <div className="card-options card-2">
-            <p className="imager">🌋</p>
-            <h4>Hill</h4>
-            <p>Scenic hill stations</p>
-        </div>
+            <div className="card-options card">
+                <p className="imager">🌿</p>
+                <h4>Nature</h4>
+                <p>Forests, wildlife & greenery</p>
+            </div>
+            <div className="card-options card">
+                <p className="imager">🏖️</p>
+                <h4> Beach</h4>
+                <p>Coastal gems & sunsets</p>
+            </div>
+            <div className="card-options card">
+                <p className="imager">🏛️</p>
+                <h4>Heritage</h4>
+                <p>History & architecture</p>
+            </div>
+            <div className="card-options card">
+                <p className="imager">⛰️</p>
+                <h4>Adventure</h4>
+                <p>Thrills & exploration</p>
+            </div>
+            <div className="card-options card-2">
+                <p className="imager">🌆</p>
+                <h4>City</h4>
+                <p>Urban life & culture</p>
+            </div>
+            <div className="card-options card-2">
+                <p className="imager">🌋</p>
+                <h4>Hill</h4>
+                <p>Scenic hill stations</p>
+            </div>
         </div>
         
     </section>

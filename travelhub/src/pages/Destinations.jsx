@@ -1,7 +1,6 @@
 function Destinations(){
     return(
-        <main className="wrapper">
-         
+        <main className="wrapper">         
         <section className="title">
             <div className="title-travel">
                 <h1>Explore <span> Destinations</span></h1>
@@ -22,10 +21,7 @@ function Destinations(){
                 </ul>
             </div>
         </section>
-
-        <section className="travel-enjor">
-        </section>
-
+        <section className="travel-enjor"></section>
         </main>
     )
 }
