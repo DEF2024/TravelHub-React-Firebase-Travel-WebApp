@@ -1,9 +1,61 @@
 import { Link } from "react-router-dom";
+import { useEffect, useRef } from "react";
 
 function Footer() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    let frameId;
+
+    function resize() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = 220;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const layers = [
+      { amp: 30, len: 0.006, speed: 0.02, alpha: 1.0, offset: 0 },
+      { amp: 22, len: 0.009, speed: 0.03, alpha: 0.35, offset: 2 },
+      { amp: 18, len: 0.012, speed: 0.04, alpha: 0.25, offset: 4 },
+    ];
+
+    let t = 0;
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const l of layers) {
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height);
+        for (let x = 0; x <= canvas.width; x += 4) {
+          const y = 60 + Math.sin(x * l.len + t * l.speed * 10 + l.offset) * l.amp;
+          ctx.lineTo(x, y);
+        }
+        ctx.lineTo(canvas.width, canvas.height);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(41, 128, 255, ${l.alpha})`;
+        ctx.fill();
+      }
+      t += 0.1;
+      frameId = requestAnimationFrame(draw);
+    }
+    draw();
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
   return (
-    <footer>
-      <div className="wrapper footer-1">
+    <footer style={{ position: "relative", background: "#2980ff", marginTop: 60 }}>
+      <canvas
+        ref={canvasRef}
+        style={{ position: "absolute", left: 0, top: -60, zIndex: 0, pointerEvents: "none" }}
+      />
+
+      <div className="wrapper footer-1" style={{ position: "relative", zIndex: 1 }}>
         <div className="row">
           <div className="footer-bottom">
             <div className="brand-logo">
@@ -50,7 +102,6 @@ function Footer() {
               <br />
               delivered to your inbox.
             </p>
-
             <form className="footer-input">
               <input type="email" placeholder="Name@example.com" required />
               <button type="submit" className="submit">Submit</button>

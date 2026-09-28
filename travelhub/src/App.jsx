@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Destinations from "./pages/Destinations";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import AnimatedBackground from "./components/AnimatedBackground";
 // import App from "./src/App";
 
 const Layout = () => {
@@ -25,18 +26,23 @@ const Layout = () => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/destinations" element={<Destinations />} />
-        </Route>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    <>
+      <AnimatedBackground />
+      <div className="app-content">
+        <BrowserRouter>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Navigate to="/home" replace />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/destinations" element={<Destinations />} />
+            </Route>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-      </Routes>
-    </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </div>
+    </>
   );
 }
 

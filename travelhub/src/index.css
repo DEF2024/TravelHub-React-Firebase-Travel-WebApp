@@ -7,7 +7,19 @@
 }
 body{
     font-family: 'Poppins', sans-serif;
-    background-color: #1c1b1bfb;
+    background-color: #000;
+}
+.animated-background{
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+.app-content{
+  position: relative;
+  z-index: 1;
 }
 hr{
     border: 1px solid rgba(65, 64, 64, 0.972);
@@ -125,11 +137,17 @@ nav a:hover{
 .close-nav {
   display: none;
 }
+.mean-nav, .close-nav {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
  /* ===end nav=== */
 
  /* ===start footer === */
 .footer-1{
-    background-color: black;
+    /* background-color: black; */
     padding: 30px;
 }
 .footer-buttom,.wrold{
@@ -190,7 +208,7 @@ footer p{
 
  /* ===start section home === */
  .home{
-  background: radial-gradient(circle at top center, #42587b 0%, #020b21 100%);
+  background: transparent;
     color: white;
     display: flex;
     justify-content: center;
@@ -242,7 +260,7 @@ input{
 
 /* ==start home-1=== */
 .home-1{
-    background-image: -webkit-linear-gradient(360deg,#0d73df 0%,#1fc425 100%);
+  background: transparent;
     color: white;
     display: flex;
     justify-content:space-between;
@@ -270,7 +288,7 @@ input{
 
 /* ===start section home-2===  */
 .home-2{
-    background-color: #1c1b1bfb;
+  background-color: transparent;
     color: white;
     padding: 60px 30px;
 }
@@ -331,7 +349,7 @@ input{
 
 /* ===start section home-3=== */
 .home-3{
-    background-image: -webkit-linear-gradient(360deg,#000000 50%,#c3b3ad 100%);
+  background: transparent;
     color: white;
     padding: 30px;
 }
@@ -394,7 +412,7 @@ input{
 
 /* ========Start Destinations======= */
 .title{
-  background: radial-gradient(circle at top center, #42587b 0%, #020b21 100%);
+  background: transparent;
   padding: 40px;
   display: flex;
   justify-content: center;
@@ -446,7 +464,7 @@ input{
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at top center, #1e293b 0%, #0f172a 100%);
+  background: transparent;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: #f8fafc;
   padding: 1rem;
@@ -604,7 +622,7 @@ input{
     justify-content: center;
     align-items: center;
     color: #cbd5e1;
-    background: radial-gradient(circle at top center, #3d259d 50%, #190c08 100%);
+    background: transparent;
 }
 .box-1 {
   display: flex;
