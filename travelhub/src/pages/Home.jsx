@@ -22,7 +22,6 @@ function Home() {
             </div>
         </div>
     </section>
-    <hr />
 
     <section className="home-1">
         <div className="home-1-content">
@@ -46,7 +45,6 @@ function Home() {
             <p>Safe & Verified</p>
         </div>
     </section>
-    <hr />
 
     <section className="home-2">
         <div className="home-2-content">
@@ -97,7 +95,6 @@ function Home() {
             </div>            
         </div>
     </section>
-    <hr />  
 
     <section className="home-3">
         <div className="title-container">

@@ -1,3 +1,15 @@
+@media screen and (max-width: 1000px) {
+    /* ==== start trips ==== */
+    .trips-row-1 {
+        flex-direction: column;
+        padding-left: 20px;
+    }
+    .trips-row-lorem {
+        margin-bottom: 50px;
+    }
+    /* ==== end trips ==== */
+}
+
 @media screen and (max-width: 768px) {
     /* ===start navbear=== */
     .web-nav ul,.web-nav .btn-container {
@@ -44,4 +56,22 @@
         flex-wrap: wrap;
     }
     /* ===end section home-1===  */
+    /* ==== start trips ==== */
+    .col-trips-piac-row-2 {
+        flex-direction: column;
+    }
+    .trips-row-lorem {
+        margin-bottom: 20px;
+    }
+    .col-trips-piac-1 {
+        display: flex;
+        justify-content: center;
+        width: 96%;
+    }
+    .col-trips-piac-in-2 .left {
+        right: auto;
+        top: auto;
+    }
+    /* ==== end trips ==== */
+
 }

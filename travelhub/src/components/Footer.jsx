@@ -109,6 +109,10 @@ function Footer() {
           </div>
         </div>
       </div>
+      <div className="footer-rightcopy">
+        <p> &copy; 2026 TravelHub. tudent Project - Educational Use.</p>
+        <p>Built with using React & firebase</p>
+      </div>
     </footer>
   );
 }
