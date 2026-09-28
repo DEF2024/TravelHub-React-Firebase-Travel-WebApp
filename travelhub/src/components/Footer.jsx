@@ -11,15 +11,15 @@ function Footer() {
 
     function resize() {
       canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = 220;
+      canvas.height = canvas.parentElement.offsetHeight + 60; // cover the whole footer
     }
     resize();
     window.addEventListener("resize", resize);
 
     const layers = [
-      { amp: 30, len: 0.006, speed: 0.02, alpha: 1.0, offset: 0 },
-      { amp: 22, len: 0.009, speed: 0.03, alpha: 0.35, offset: 2 },
-      { amp: 18, len: 0.012, speed: 0.04, alpha: 0.25, offset: 4 },
+      { amp: 30, len: 0.006, speed: 0.02, alpha: 0.45, offset: 0 },
+      { amp: 22, len: 0.009, speed: 0.03, alpha: 0.30, offset: 2 },
+      { amp: 18, len: 0.012, speed: 0.04, alpha: 0.20, offset: 4 },
     ];
 
     let t = 0;
@@ -34,7 +34,12 @@ function Footer() {
         }
         ctx.lineTo(canvas.width, canvas.height);
         ctx.closePath();
-        ctx.fillStyle = `rgba(41, 128, 255, ${l.alpha})`;
+
+        // teal wave that fades out toward the bottom
+        const g = ctx.createLinearGradient(0, 30, 0, canvas.height);
+        g.addColorStop(0, `rgba(61, 220, 180, ${l.alpha})`);
+        g.addColorStop(1, "rgba(61, 220, 180, 0)");
+        ctx.fillStyle = g;
         ctx.fill();
       }
       t += 0.1;
@@ -49,7 +54,14 @@ function Footer() {
   }, []);
 
   return (
-    <footer style={{ position: "relative", background: "#2980ff", marginTop: 60 }}>
+    <footer
+      style={{
+        position: "relative",
+        background: "transparent", // <-- footer background removed
+        color: "#fff",
+        marginTop: 60,
+      }}
+    >
       <canvas
         ref={canvasRef}
         style={{ position: "absolute", left: 0, top: -60, zIndex: 0, pointerEvents: "none" }}
@@ -109,9 +121,10 @@ function Footer() {
           </div>
         </div>
       </div>
-      <div className="footer-rightcopy">
-        <p> &copy; 2026 TravelHub. tudent Project - Educational Use.</p>
-        <p>Built with using React & firebase</p>
+
+      <div className="footer-rightcopy" style={{ position: "relative", zIndex: 1 }}>
+        <p>&copy; 2026 TravelHub. Student Project - Educational Use.</p>
+        <p>Built with love using React &amp; Firebase</p>
       </div>
     </footer>
   );

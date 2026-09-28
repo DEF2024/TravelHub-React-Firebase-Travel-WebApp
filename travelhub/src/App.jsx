@@ -11,8 +11,9 @@ import Home from "./pages/Home";
 import Destinations from "./pages/Destinations";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Trips from "./pages/Trips";
 import AnimatedBackground from "./components/AnimatedBackground";
-// import App from "./src/App";
+import Profile from "./pages/Profile";
 
 const Layout = () => {
   return (
@@ -35,6 +36,8 @@ function App() {
               <Route path="/" element={<Navigate to="/home" replace />} />
               <Route path="/home" element={<Home />} />
               <Route path="/destinations" element={<Destinations />} />
+              <Route path="/trips" element={<Trips />} />
+              <Route path="/profile" element={<Profile />} />
             </Route>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

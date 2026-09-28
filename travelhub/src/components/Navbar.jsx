@@ -20,6 +20,7 @@ function Navbar() {
       <ul>
         <li><Link to="/home">Home</Link></li>
         <li><Link to="/destinations">Destinations</Link></li>
+        <li><Link to="/profile">Profile</Link></li>
       </ul>
       
       <div className="btn-container">
@@ -43,6 +44,7 @@ function Navbar() {
       <ul>
         <li><Link to="/home">Home</Link></li>
         <li><Link to="/destinations">Destinations</Link></li>
+        <li><Link to="/profile">Profile</Link></li>
       </ul>
       
       <div className="btn-container">

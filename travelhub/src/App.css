@@ -72,6 +72,11 @@
         right: auto;
         top: auto;
     }
+}
     /* ==== end trips ==== */
 
+ /* ====start profile===== */
+ @media (max-width: 600px) {
+   .form { grid-template-columns: 1fr; }
 }
+ /* ====end profile===== */

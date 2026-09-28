@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import MyImage1 from "../assets/bestindia.jpg";
 import MyImage2 from "../assets/Islands.jpg";
 import MyImage3 from "../assets/istockphoto.jpg";
@@ -17,8 +18,8 @@ function Home() {
             </label> 
             <br />
             <div className="search-container">
-                <button className="search-button">Explore Destinations</button>
-                <button className="search-button">Start Planning free</button>
+                <Link className="search-button" to="/destinations">Explore Destinations</Link>
+                <Link className="search-button" to="/trips">Start Planning free</Link>
             </div>
         </div>
     </section>
