@@ -4,10 +4,26 @@ import MyImage3 from "../assets/istockphoto.jpg";
 import MyImage4 from "../assets/Kalka.jpg";
 import MyImage5 from "../assets/philippines.png";
 import MyImage6 from "../assets/Sonmarg.jpg";
+import { useNavigate } from "react-router-dom";
 
 function Trips() {
+    const navigate = useNavigate();
+    const handleTripView = (event) => {
+        if (!event.target.closest?.(".trips-col-date button")) return;
+
+        navigate("/payment", {
+            state: {
+                title: "7 Days tour to Explore the Beauty of philippines",
+                destination: "Maldives, Philippines",
+                duration: "7 days",
+                travelers: 2,
+                price: 1100,
+            },
+        });
+    };
+
   return (
-    <main className="wrapper">
+        <main className="wrapper" onClick={handleTripView}>
 
         <section className="trips-section">
             <div className="trips-row-1">

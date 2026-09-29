@@ -1,10 +1,8 @@
-import { Form, Link } from "react-router-dom";
-import MyImage1 from "../assets/bestindia.jpg";
-import MyImage2 from "../assets/Islands.jpg";
-import MyImage3 from "../assets/istockphoto.jpg";
-import MyImage4 from "../assets/Kalka.jpg";
-import MyImage5 from "../assets/philippines.png";
-import MyImage6 from "../assets/Sonmarg.jpg";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import FeaturedDestinations from "../components/FeaturedDestinations";
+import { destinations } from "../components/FeaturedDestinations";
+import AccessibilityFilters from "../components/AccessibilityFilters";
 import MyImage7 from "../assets/treeicon.png";
 import MyImage8 from "../assets/beachicon.png";
 import MyImage9 from "../assets/heritageicon.png";
@@ -13,6 +11,16 @@ import MyImage11 from "../assets/city-icon.png";
 import MyImage12 from "../assets/hill-icon.png";
 
 function Home() {
+    const [selectedNeeds, setSelectedNeeds] = useState([]);
+    const featuredResults = destinations.filter((destination) =>
+        destination.featured && selectedNeeds.every((need) => destination.accessibility.includes(need))
+    );
+    const toggleNeed = (need) => {
+        setSelectedNeeds((currentNeeds) => currentNeeds.includes(need)
+            ? currentNeeds.filter((currentNeed) => currentNeed !== need)
+            : [...currentNeeds, need]);
+    };
+
   return (
     <main className="wrapper">
     <section className="home">
@@ -61,44 +69,22 @@ function Home() {
         <div className="home-2-image">
             <div className="home-2-row-1">
                 <div className="home-2-font-row">FILTER BY NEED</div>
-                <div className="home-2-button-col">
-                    <button className="home-2-button">♿ Wheelchair access</button>
-                    <button className="home-2-button">🚻 Accessible toilets</button>
-                    <button className="home-2-button">👁 Visual info / signage</button>
-                    <button className="home-2-button">🗨 Communication support</button>
-                    <button className="home-2-button">🅿 Accessible parking</button>
-                </div>
+                <AccessibilityFilters
+                    className="home-2-button-col"
+                    buttonClassName="home-2-button"
+                    selectedNeeds={selectedNeeds}
+                    onToggle={toggleNeed}
+                />
             </div>
             <div className="home-2-row-2">
                 <div className="home-2-row-in">
-                    <p>RESULTS — DESTINATIONS MATCHING SELECTED NEEDS</p>
+                    <p>RESULTS — {featuredResults.length} DESTINATIONS MATCHING SELECTED NEEDS</p>
                 </div>
-                <div className="home-2-row-image">
-                    <div className="home-2-image-group">
-                        <img src={MyImage1} alt="bestlndia" />
-                        <p>♿ 🚻</p>
-                    </div>
-                    <div className="home-2-image-group">
-                        <img src={MyImage2} alt="bestlndia" />
-                        <p>♿ 🚻</p>
-                    </div>
-                    <div className="home-2-image-group">
-                        <img src={MyImage3} alt="bestlndia" />
-                        <p>♿ 🚻</p>
-                    </div>
-                    <div className="home-2-image-group">
-                        <img src={MyImage4} alt="bestlndia" />
-                        <p>♿ 🚻</p>
-                    </div>
-                    <div className="home-2-image-group">
-                        <img src={MyImage5} alt="bestlndia" />
-                        <p>♿ 🚻</p>
-                    </div>
-                    <div className="home-2-image-group">
-                        <img src={MyImage6} alt="bestlndia" />
-                        <p>♿ 🚻</p>
-                    </div>
-                </div>
+                {featuredResults.length > 0 ? (
+                    <FeaturedDestinations items={featuredResults} />
+                ) : (
+                    <p className="destination-empty" role="status">No featured destinations match those needs.</p>
+                )}
             </div>
             <div className="home-2-view">
                 <div className="home-2-view-button">
@@ -116,36 +102,36 @@ function Home() {
             <p>Find your perfect type of getaway</p>
         </div>
         <div className="card-1">
-            <div className="card-options card">
-                <img src={MyImage7} alt="tree-icon" />
+            <Link className="card-options card" to="/destinations?category=Nature" aria-label="Explore Nature destinations">
+                <img src={MyImage7} alt="" />
                 <h4>Nature</h4>
                 <p>Forests, wildlife & greenery</p>
-            </div>
-            <div className="card-options card">
-                <img src={MyImage8} alt="tree-icon" />
+            </Link>
+            <Link className="card-options card" to="/destinations?category=Beach" aria-label="Explore Beach destinations">
+                <img src={MyImage8} alt="" />
                 <h4> Beach</h4>
                 <p>Coastal gems & sunsets</p>
-            </div>
-            <div className="card-options card">
-                <img src={MyImage9} alt="heritage-icon" />
+            </Link>
+            <Link className="card-options card" to="/destinations?category=Heritage" aria-label="Explore Heritage destinations">
+                <img src={MyImage9} alt="" />
                 <h4>Heritage</h4>
                 <p>History & architecture</p>
-            </div>
-            <div className="card-options card">
-                <img src={MyImage10} alt="adventureicon-icon" />
+            </Link>
+            <Link className="card-options card" to="/destinations?category=Adventure" aria-label="Explore Adventure destinations">
+                <img src={MyImage10} alt="" />
                 <h4>Adventure</h4>
                 <p>Thrills & exploration</p>
-            </div>
-            <div className="card-options card">
-                <img src={MyImage11} alt="city-icon" />
+            </Link>
+            <Link className="card-options card" to="/destinations?category=City" aria-label="Explore City destinations">
+                <img src={MyImage11} alt="" />
                 <h4>City</h4>
                 <p>Urban life & culture</p>
-            </div>
-            <div className="card-options card">
-                <img src={MyImage12} alt="hill-icon" />
+            </Link>
+            <Link className="card-options card" to="/destinations?category=Hill" aria-label="Explore Hill destinations">
+                <img src={MyImage12} alt="" />
                 <h4>Hill</h4>
                 <p>Scenic hill stations</p>
-            </div>
+            </Link>
         </div>
         
     </section>
@@ -156,7 +142,7 @@ function Home() {
             <p>Join thousands of travelers who plan unforgettable trips with TravelHub</p>
             <div>
                 <button className="btu-3">Create Free Account</button>
-                <button className="btu-4">Browse Destinations</button>
+            <Link to="/DestinationCard" className="btu-4">Browse Destinations</Link>
             </div>
         </div>
 

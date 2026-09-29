@@ -426,6 +426,10 @@ input{
   background: linear-gradient(to right, #59a9ffa5, #7ff36294);
   font-size: clamp(14px, 1.2vw, 18px);
 }
+.home-2-button[aria-pressed="true"] {
+  color: #171717;
+  background: #f0c84b;
+}
 .home-2-row-in {
   margin-bottom: 20px;
 }
@@ -460,6 +464,10 @@ input{
   margin-top: 5px;
   margin-left: 20px;
 }
+.destination-access-icons {
+  display: flex;
+  gap: 10px;
+}
 .home-2-image-group img{
   width: 400px;
   height: 300px;
@@ -490,6 +498,17 @@ input{
 }
 .home-2-view svg {
   fill: yellow;
+}
+.destinations-featured .home-2-row-image {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 24px;
+}
+.destinations-featured .home-2-image-group img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 /* ===end section home-2=== */
 
@@ -523,6 +542,9 @@ input{
     border: 4px outset #03ef8d;
 }
 .card-options{
+  display: block;
+  color: inherit;
+  text-decoration: none;
     box-shadow: rgba(253, 253, 253, 0.25) 0px 50px 100px -20px, rgba(250, 247, 247, 0.3) 0px 30px 60px -30px, rgba(239, 240, 242, 0.35) 0px -2px 6px 0px inset;
     width: 140px;
     padding: 20px;
@@ -581,25 +603,114 @@ input{
     color: rgb(175, 174, 174);
     margin-bottom: 20px;
 }
-.label-1{
-  padding: 30px 170px;
+.destination-search {
+  display: block;
+  width: min(100%, 620px);
+  margin: 12px auto 0;
+}
+.destination-search input {
+  width: 100%;
+  padding: 13px 16px;
+  color: #171717;
+  background: #fff;
+  border: 1px solid #b8c0c4;
+  border-radius: 6px;
+  font: inherit;
 }
 .travel-where ul  {
     display: flex;
     list-style: none;
-    display: flex;
     justify-content: center;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
     margin-top: 20px;
     color: rgb(175, 174, 174);
 }
-.travel-where li a{
-    margin: 10px;
-    align-items: center;
-}
-.travel-where, .border:hover{
-    color: hsla(47, 100%, 51%, 0.959);
+.travel-where button {
+    padding: 8px 14px;
+    color: #e7e7e7;
+    background: transparent;
+    border: 1px solid #70777b;
     border-radius: 20px;
+    cursor: pointer;
+    font: inherit;
+}
+.travel-where button:hover,
+.travel-where button[aria-pressed="true"] {
+    color: #101010;
+    background: #f0c84b;
+    border-color: #f0c84b;
+}
+.accessibility-filter-section {
+  width: min(100%, 900px);
+  margin-top: 22px;
+  color: #e7e7e7;
+  text-align: center;
+}
+.accessibility-filter-section > p {
+  margin-bottom: 10px;
+}
+.accessibility-filters {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.accessibility-filter-button {
+  padding: 8px 12px;
+  color: #e7e7e7;
+  background: transparent;
+  border: 1px solid #70777b;
+  border-radius: 5px;
+  cursor: pointer;
+  font: inherit;
+}
+.accessibility-filter-button:hover,
+.accessibility-filter-button[aria-pressed="true"] {
+  color: #101010;
+  background: #f0c84b;
+  border-color: #f0c84b;
+}
+.destination-card-copy {
+  padding: 0 8px 14px;
+  color: #fff;
+}
+.destination-card-copy h2 {
+  margin: 14px 0 4px;
+  font-size: 21px;
+}
+.destination-card-copy > p {
+  margin: 0 0 12px;
+  color: #c7c7c7;
+}
+.destination-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.destination-tags span {
+  padding: 4px 9px;
+  color: #fff;
+  background: #31534f;
+  border-radius: 4px;
+  font-size: 13px;
+}
+.destination-empty {
+  padding: 36px 12px;
+  color: #e7e7e7;
+  text-align: center;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 /* ========End Destinations======= */
 
@@ -1049,6 +1160,134 @@ input{
   border: none;
   font-size: 16px;
 }
+.demo-payment-page {
+  min-height: 70vh;
+  padding: 52px 20px;
+  color: #162a24;
+}
+.demo-payment-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  max-width: 940px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: #f6f7f2;
+  border-radius: 8px;
+}
+.demo-payment-content,
+.demo-order-summary {
+  padding: 36px;
+}
+.demo-payment-label {
+  margin-bottom: 14px;
+  color: #31534f;
+  font-size: 13px;
+  font-weight: 700;
+}
+.demo-payment-content h1 {
+  margin-bottom: 12px;
+  font-size: clamp(26px, 4vw, 36px);
+}
+.demo-payment-notice {
+  margin-bottom: 26px;
+  color: #684f0b;
+}
+.demo-payment-methods {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+}
+.demo-payment-methods legend {
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+.demo-payment-methods label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #c7cfca;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.demo-payment-methods input {
+  accent-color: #31534f;
+}
+.demo-payment-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 28px;
+}
+.demo-payment-actions a,
+.demo-payment-actions button,
+.demo-payment-back {
+  padding: 11px 14px;
+  border-radius: 5px;
+  font: inherit;
+  text-decoration: none;
+}
+.demo-payment-cancel {
+  color: #31534f;
+}
+.demo-payment-actions button,
+.demo-payment-back {
+  color: #fff;
+  background: #31534f;
+  border: 0;
+  cursor: pointer;
+}
+.demo-order-summary {
+  background: #e6ece7;
+}
+.demo-order-summary h2 {
+  margin-bottom: 24px;
+  font-size: 19px;
+}
+.demo-order-summary h3 {
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+.demo-order-summary > p {
+  margin-bottom: 28px;
+  color: #52645d;
+}
+.demo-order-summary dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid #c6d0c9;
+}
+.demo-order-summary dd {
+  margin: 0;
+  font-weight: 600;
+}
+.demo-order-total {
+  margin-top: 8px;
+  font-size: 18px;
+}
+.demo-payment-success p {
+  margin: 16px 0;
+}
+.demo-reference {
+  font-weight: 700;
+}
+.demo-payment-back {
+  display: inline-block;
+  margin-top: 8px;
+}
+@media (max-width: 680px) {
+  .demo-payment-shell {
+    grid-template-columns: 1fr;
+  }
+  .demo-payment-content,
+  .demo-order-summary {
+    padding: 26px 20px;
+  }
+}
 /* ==== end trips ==== *//* ==== start trips ==== */
 .trips-section {
   background-color: #00000052;
@@ -1279,3 +1518,97 @@ input{
   color: #3ddcb4;
 }
 /* ====end profile===== */
+
+
+/* ===== Destination card ===== */
+.dest-grid{
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.dest-card{
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  transition: transform 0.25s, border-color 0.25s;
+  display: flex;
+  flex-direction: column;
+}
+.dest-card:hover{ 
+  transform: translateY(-6px); 
+  border-color: rgba(61, 220, 180, 0.5); 
+}
+.dest-img{ 
+  position: relative; 
+  height: 160px; 
+  background-size: cover; 
+  background-position: center; 
+}
+.dest-img::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55), transparent 60%);
+}
+.dest-fav{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 15px;
+}
+.dest-fav.active { 
+  color: #3ddcb4; 
+  border-color: #3ddcb4; 
+}
+.dest-tag{
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: rgba(61, 220, 180, 0.85);
+  color: #003d2f;
+  font-weight: 600;
+}
+.dest-body{ 
+  padding: 16px; 
+}
+.dest-body h3 
+{ margin: 0 0 2px; 
+  font-size: 17px; 
+}
+.dest-loc{ 
+  font-size: 13px; 
+  opacity: 0.65; 
+  margin: 0 0 10px; 
+}
+.dest-meta{ 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  font-size: 13px; 
+}
+.dest-rating{ 
+  color: #3ddcb4; 
+  font-weight: 600; 
+}
+.dest-price{ 
+  opacity: 0.85; 
+}
+.dest-price b{ 
+  color: #fff; 
+}

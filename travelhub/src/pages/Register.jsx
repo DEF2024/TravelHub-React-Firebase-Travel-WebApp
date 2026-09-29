@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth } from '../firebase/firebaseConfig';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -7,14 +9,32 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      setError('Passwords do not match.');
       return;
     }
-    console.log('Registration attempt:', { name, email, password });
+
+    setIsSubmitting(true);
+    try {
+      const { user } = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(user, { displayName: name.trim() });
+      navigate('/home');
+    } catch (authError) {
+      setError(authError.code === 'auth/email-already-in-use'
+        ? 'An account with this email already exists.'
+        : authError.code === 'auth/weak-password'
+          ? 'Choose a stronger password.'
+          : 'Unable to create your account. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -37,6 +57,7 @@ const Register = () => {
 
       <div className="login-box">
         <form onSubmit={handleSubmit}>
+          {error && <p role="alert">{error}</p>}
           
           {/* Full Name Input */}
           <div className="input-group">
@@ -124,14 +145,14 @@ const Register = () => {
             </div>
           </div>
 
-          <button type="submit" className="login-submit-btn">
+          <button type="submit" className="login-submit-btn" disabled={isSubmitting}>
             <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="8.5" cy="7" r="4"></circle>
               <line x1="20" y1="8" x2="20" y2="14"></line>
               <line x1="23" y1="11" x2="17" y2="11"></line>
             </svg>
-            Create Account
+            {isSubmitting ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
       </div>
