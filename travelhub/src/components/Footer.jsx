@@ -60,6 +60,7 @@ function Footer() {
         background: "transparent", // <-- footer background removed
         color: "#fff",
         marginTop: 60,
+        zIndex: 0,
       }}
     >
       <canvas

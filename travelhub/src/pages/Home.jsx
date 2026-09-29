@@ -1,10 +1,16 @@
-import { Link } from "react-router-dom";
+import { Form, Link } from "react-router-dom";
 import MyImage1 from "../assets/bestindia.jpg";
 import MyImage2 from "../assets/Islands.jpg";
 import MyImage3 from "../assets/istockphoto.jpg";
 import MyImage4 from "../assets/Kalka.jpg";
 import MyImage5 from "../assets/philippines.png";
 import MyImage6 from "../assets/Sonmarg.jpg";
+import MyImage7 from "../assets/treeicon.png";
+import MyImage8 from "../assets/beachicon.png";
+import MyImage9 from "../assets/heritageicon.png";
+import MyImage10 from "../assets/adventureicon.png";
+import MyImage11 from "../assets/city-icon.png";
+import MyImage12 from "../assets/hill-icon.png";
 
 function Home() {
   return (
@@ -18,8 +24,8 @@ function Home() {
             </label> 
             <br />
             <div className="search-container">
-                <Link className="search-button" to="/destinations">Explore Destinations</Link>
-                <Link className="search-button" to="/trips">Start Planning free</Link>
+                <Link className="search-button" to="/destinations"><p className="text-1">Explore Destinations</p></Link>
+                <Link className="search-button" to="/trips"><p className="text-2">Start Planning free</p></Link>
             </div>
         </div>
     </section>
@@ -93,6 +99,12 @@ function Home() {
                         <p>♿ 🚻</p>
                     </div>
                 </div>
+            </div>
+            <div className="home-2-view">
+                <div className="home-2-view-button">
+                    <Link to="/Destinations" className="home-2-view-link">View All Destinations</Link>
+                    <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#FFFFFF"><path d="M673-446.67H160v-66.66h513l-240-240L480-800l320 320-320 320-47-46.67 240-240Z"/></svg>
+                </div>
             </div>            
         </div>
     </section>
@@ -105,32 +117,32 @@ function Home() {
         </div>
         <div className="card-1">
             <div className="card-options card">
-                <p className="imager">🌿</p>
+                <img src={MyImage7} alt="tree-icon" />
                 <h4>Nature</h4>
                 <p>Forests, wildlife & greenery</p>
             </div>
             <div className="card-options card">
-                <p className="imager">🏖️</p>
+                <img src={MyImage8} alt="tree-icon" />
                 <h4> Beach</h4>
                 <p>Coastal gems & sunsets</p>
             </div>
             <div className="card-options card">
-                <p className="imager">🏛️</p>
+                <img src={MyImage9} alt="heritage-icon" />
                 <h4>Heritage</h4>
                 <p>History & architecture</p>
             </div>
             <div className="card-options card">
-                <p className="imager">⛰️</p>
+                <img src={MyImage10} alt="adventureicon-icon" />
                 <h4>Adventure</h4>
                 <p>Thrills & exploration</p>
             </div>
-            <div className="card-options card-2">
-                <p className="imager">🌆</p>
+            <div className="card-options card">
+                <img src={MyImage11} alt="city-icon" />
                 <h4>City</h4>
                 <p>Urban life & culture</p>
             </div>
-            <div className="card-options card-2">
-                <p className="imager">🌋</p>
+            <div className="card-options card">
+                <img src={MyImage12} alt="hill-icon" />
                 <h4>Hill</h4>
                 <p>Scenic hill stations</p>
             </div>
