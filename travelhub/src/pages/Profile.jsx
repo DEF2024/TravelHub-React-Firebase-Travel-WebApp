@@ -30,7 +30,7 @@ const trips =[
                     <h1>{form.name}</h1>
                     <p>{form.email}.{form.city}</p>
                 </div>
-                 <button className="btn-8 ghost">Log Out</button>
+                 <button  className="btn-8 ghost">Log Out</button>
             </div>
               <div className="card stats">
                 <div><b>12</b><span>Trips planned</span></div>

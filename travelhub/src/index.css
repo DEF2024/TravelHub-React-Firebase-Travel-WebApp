@@ -736,7 +736,7 @@ input{
   justify-content: center;
 }
 .logo-circle {
-  background-color: #fcd34d;
+  /* background-color: #fcd34d; */
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -767,7 +767,7 @@ input{
   margin: 0;
 }
 .login-box {
-  background-color: #1e293b;
+  /* background-color: #1e293b; */
   padding: 2rem;
   border-radius: 12px;
   width: 100%;
@@ -896,7 +896,7 @@ input{
     margin-bottom: 20px;
     font-size: clamp(16px, 1.5vw, 20px);
 }
-.home-4 button{
+.home-4 .btu-4 {
    margin: 20px;
    padding: 10px 30px;
    margin-bottom: 100px;

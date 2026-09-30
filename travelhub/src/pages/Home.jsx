@@ -141,8 +141,8 @@ function Home() {
             <h1>Ready to Start Your Adventure?</h1>
             <p>Join thousands of travelers who plan unforgettable trips with TravelHub</p>
             <div>
-                <button className="btu-3">Create Free Account</button>
-            <Link to="/DestinationCard" className="btu-4">Browse Destinations</Link>
+                <Link to="/Login" className="btu-4">Create Free Account</Link>
+                <Link to="/DestinationCard" className="btu-4">Browse Destinations</Link>
             </div>
         </div>
 
