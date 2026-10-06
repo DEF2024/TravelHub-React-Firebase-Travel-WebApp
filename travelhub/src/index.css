@@ -57,6 +57,7 @@ hr{
   margin-right: 10px;
 }
 .app-nav {
+  background-color: #000000ea;
   display: none;
   z-index: 999;
 }
@@ -75,7 +76,6 @@ hr{
 }
 nav{
   width: 100%;
-    background-color: #000000ee;
     display: flex;
     justify-content:space-between;
     align-items: center;
@@ -148,6 +148,13 @@ nav a:hover{
   padding: 0;
   background: transparent;
   cursor: pointer;
+}
+.web-nav {
+  background-color: #07070739;
+  margin: 10px;
+  width: 99%;
+  border: 2px solid gray;
+  border-radius: 10px;
 }
  /* ===end nav=== */
 
