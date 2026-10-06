@@ -339,7 +339,10 @@ input{
     border-radius: 5px;
 }
 .search-input{
-    padding: 10px 100px;
+    display: block;
+    width: min(100%, 620px);
+    margin: 12px auto 0;
+    text-align: center;
     border-radius: 5px;
     border: none;
     background: white;
