@@ -45,6 +45,8 @@ function Navbar() {
         <li><Link to="/home">Home</Link></li>
         <li><Link to="/destinations">Destinations</Link></li>
         <li><Link to="/profile">Profile</Link></li>
+        <li><Link to="/dashboard">Dashboard</Link></li>
+
       </ul>
       
       <div className="btn-container">

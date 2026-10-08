@@ -16,6 +16,7 @@ import Payment from "./pages/Payment";
 import AnimatedBackground from "./components/AnimatedBackground";
 import Profile from "./pages/Profile";
 import DestinationsGrid from "./components/DestinationsGrid";
+import Dashboard from "./pages/Dashboard";
 
 const Layout = () => {
   return (
@@ -35,15 +36,17 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route element={<Layout />}>
-              <Route path="/" element={<Navigate to="/home" replace />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/destinations" element={<Destinations />} />
-              <Route path="/trips" element={<Trips />} />
-              <Route path="/payment" element={<Payment />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/DestinationCard" element={<DestinationsGrid />} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/destinations" element={<Destinations />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/DestinationCard" element={<DestinationsGrid />} />
+
 
             </Route>
+            <Route path="/trips" element={<Trips />} />
+            <Route path="/Dashboard" element={<Dashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 

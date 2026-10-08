@@ -96,3 +96,22 @@
 
  /* ==== end destinationCard==== */
 
+ /* ===== start dashboard===== */
+ @media (max-width:760px){
+  .dash{
+    flex-direction:column
+  }
+  .side{
+    width:100%;
+    padding:12px
+  }
+  .side nav{
+    flex-direction:row;
+    overflow-x:auto
+  }
+  .brand{
+    margin-bottom:12px
+  }
+}
+/* ====end dashboard====== */
+
