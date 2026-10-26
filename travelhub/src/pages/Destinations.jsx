@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import FeaturedDestinations from "../components/FeaturedDestinations";
 import { destinations } from "../components/FeaturedDestinations";
-import AccessibilityFilters from "../components/AccessibilityFilters";
 
 const categories = ["All", "Nature", "Beach", "Heritage", "Adventure", "City", "Hill"];
 
@@ -11,19 +10,12 @@ function Destinations(){
     const requestedCategory = searchParams.get("category");
     const selectedCategory = categories.includes(requestedCategory) ? requestedCategory : "All";
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedNeeds, setSelectedNeeds] = useState([]);
     const normalizedSearch = searchTerm.trim().toLowerCase();
     const filteredDestinations = destinations.filter((destination) => {
         const matchesCategory = selectedCategory === "All" || destination.categories.includes(selectedCategory);
-        const matchesNeeds = selectedNeeds.every((need) => destination.accessibility.includes(need));
         const searchableText = `${destination.name} ${destination.region} ${destination.categories.join(" ")}`.toLowerCase();
-        return matchesCategory && matchesNeeds && searchableText.includes(normalizedSearch);
+        return matchesCategory && searchableText.includes(normalizedSearch);
     });
-    const toggleNeed = (need) => {
-        setSelectedNeeds((currentNeeds) => currentNeeds.includes(need)
-            ? currentNeeds.filter((currentNeed) => currentNeed !== need)
-            : [...currentNeeds, need]);
-    };
     const handleCategoryChange = (category) => {
         setSearchParams(category === "All" ? {} : { category });
     };
@@ -59,15 +51,6 @@ function Destinations(){
                                             </li>
                                         ))}
                 </ul>
-            </div>
-            <div className="accessibility-filter-section">
-                <p>Filter by accessibility</p>
-                <AccessibilityFilters
-                    className="accessibility-filters"
-                    buttonClassName="accessibility-filter-button"
-                    selectedNeeds={selectedNeeds}
-                    onToggle={toggleNeed}
-                />
             </div>
         </section>
         <section className="home-2 destinations-featured">

@@ -4,7 +4,14 @@ import MyImage3 from "../assets/istockphoto.jpg";
 import MyImage4 from "../assets/Kalka.jpg";
 import MyImage5 from "../assets/philippines.png";
 import MyImage6 from "../assets/Sonmarg.jpg";
-import { accessibilityNeeds } from "./AccessibilityFilters";
+
+const accessibilityNeeds = [
+  { id: "wheelchair", label: "Wheelchair access", icon: "♿" },
+  { id: "toilets", label: "Accessible toilets", icon: "🚻" },
+  { id: "signage", label: "Visual info / signage", icon: "👁" },
+  { id: "communication", label: "Communication support", icon: "🗨" },
+  { id: "parking", label: "Accessible parking", icon: "🅿" },
+];
 
 export const destinations = [
   { id: "india", image: MyImage1, name: "India", region: "Across India", categories: ["Nature"], accessibility: ["wheelchair", "toilets", "signage", "parking"], featured: true },

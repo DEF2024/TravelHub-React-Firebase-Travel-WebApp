@@ -81,21 +81,6 @@
 }
  /* ====end profile===== */
 
- /* ==== start destinationCard==== */
-
- @media (max-width: 800px){ 
-    .dest-grid{ 
-        grid-template-columns: 1fr 1fr; 
-    } 
-}
-@media (max-width: 520px){ 
-    .dest-grid{ 
-        grid-template-columns: 1fr; 
-    } 
-}
-
- /* ==== end destinationCard==== */
-
  /* ===== start dashboard===== */
  @media (max-width:760px){
   .dash{
@@ -114,4 +99,3 @@
   }
 }
 /* ====end dashboard====== */
-
