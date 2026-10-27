@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import FeaturedDestinations from "../components/FeaturedDestinations";
 import MyImage7 from "../assets/treeicon.png";
 import MyImage8 from "../assets/beachicon.png";
 import MyImage9 from "../assets/heritageicon.png";
@@ -61,22 +60,6 @@ function Home() {
             <svg xmlns="http://www.w3.org/2000/svg" enableBackground="new 0 0 24 24" height="48" viewBox="0 0 24 24" width="48"><g><path d="M0,0h24v24H0V0z" fill="none"/></g><g><path d="M12,2L4,5v6.09c0,5.05,3.41,9.76,8,10.91c4.59-1.15,8-5.86,8-10.91V5L12,2z M18,11.09c0,4-2.55,7.7-6,8.83c-3.45-1.13-6-4.82-6-8.83V6.31l6-2.12l6,2.12V11.09z M8.82,10.59L7.4,12l3.54,3.54l5.66-5.66l-1.41-1.41l-4.24,4.24L8.82,10.59z"/></g></svg>
             <h1>100%</h1>
             <p>Safe & Verified</p>
-        </div>
-    </section>
-
-    <section className="home-2">
-        <div className="home-2-content">
-            <h1>Featured Destinations</h1>
-            <p>Handpicked destinations loved by travelers</p>
-        </div>
-        <div className="home-2-image">
-            <FeaturedDestinations />
-            <div className="home-2-view">
-                <div className="home-2-view-button">
-                    <Link to="/Destinations" className="home-2-view-link">View All Destinations</Link>
-                    <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#FFFFFF"><path d="M673-446.67H160v-66.66h513l-240-240L480-800l320 320-320 320-47-46.67 240-240Z"/></svg>
-                </div>
-            </div>            
         </div>
     </section>
 
