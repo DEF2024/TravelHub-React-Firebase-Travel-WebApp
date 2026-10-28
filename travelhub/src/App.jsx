@@ -15,6 +15,15 @@ import Trips from "./pages/Trips";
 import Payment from "./pages/Payment";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
+import DestinationCMS from "./pages/admin/DestinationsCMS";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminTripsUsers from "./pages/admin/TripsUsers";
+import AdminUsers from "./pages/admin/Users";
+import AdminTripDetails from "./pages/admin/TripDetails";
+import Itinerary from "./pages/Itinerary";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PortalLayout from "./components/PortalLayout";
+import { AuthProvider } from "./hooks/useAuth";
 
 const Layout = () => {
   return (
@@ -29,7 +38,8 @@ const Layout = () => {
 function App() {
   return (
     <div className="app-content">
-      <BrowserRouter>
+      <AuthProvider>
+       <BrowserRouter>
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Navigate to="/home" replace />} />
@@ -37,14 +47,26 @@ function App() {
             <Route path="/destinations" element={<Destinations />} />
             <Route path="/DestinationCard" element={<Navigate to="/destinations" replace />} />
             <Route path="/payment" element={<Payment />} />
-            <Route path="/profile" element={<Profile />} />
           </Route>
-          <Route path="/trips" element={<Trips />} />
-          <Route path="/Dashboard" element={<Dashboard />} />
+          <Route element={<ProtectedRoute><PortalLayout /></ProtectedRoute>}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/trips" element={<Trips />} />
+            <Route path="/trips/:tripId" element={<Itinerary />} />
+          </Route>
+          <Route element={<ProtectedRoute adminOnly><PortalLayout admin /></ProtectedRoute>}>
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/destinations" element={<DestinationCMS />} />
+            <Route path="/admin/trips" element={<AdminTripsUsers />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/trips/:tripId" element={<AdminTripDetails />} />
+          </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
-      </BrowserRouter>
+       </BrowserRouter>
+      </AuthProvider>
     </div>
   );
 }

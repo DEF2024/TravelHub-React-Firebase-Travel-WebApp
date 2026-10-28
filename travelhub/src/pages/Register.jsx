@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, deleteUser, updateProfile } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
+import { createUserProfile } from '../services/authService';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -24,8 +25,18 @@ const Register = () => {
     setIsSubmitting(true);
     try {
       const { user } = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(user, { displayName: name.trim() });
-      navigate('/home');
+      try {
+        await updateProfile(user, { displayName: name.trim() });
+        await createUserProfile(user, name.trim());
+      } catch (profileError) {
+        try {
+          await deleteUser(user);
+        } catch (cleanupError) {
+          console.error('Unable to remove the new auth user after profile creation failed.', cleanupError);
+        }
+        throw profileError;
+      }
+      navigate('/dashboard', { replace: true });
     } catch (authError) {
       setError(authError.code === 'auth/email-already-in-use'
         ? 'An account with this email already exists.'

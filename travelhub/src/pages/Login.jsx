@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
+import { getUserProfile } from '../services/authService';
+
+const requestedPathIsAdmin = (location) => location.state?.from?.pathname?.startsWith('/admin');
 
 const Login = () => {
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [platformRole, setPlatformRole] = useState(() => (
+    requestedPathIsAdmin(location) ? 'cms-admin' : 'student'
+  ));
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -15,21 +22,53 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
+    let signedInUid = null;
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate('/home');
+      const { user } = await signInWithEmailAndPassword(auth, email, password);
+      signedInUid = user.uid;
+      const profile = await getUserProfile(user.uid);
+      const selectedAdminPortal = platformRole !== 'student';
+      const accountIsAdmin = profile?.role === 'admin';
+
+      if (!profile || selectedAdminPortal !== accountIsAdmin) {
+        await signOut(auth);
+        signedInUid = null;
+        setError(!profile
+          ? 'Your account profile could not be found. Please contact an administrator.'
+          : selectedAdminPortal
+            ? 'This account is not authorized for the selected staff portal. Choose Student / Traveler or use an authorized admin account.'
+            : 'This account is assigned to an admin portal. Select Faculty / Admin or CMS Admin to continue.');
+        return;
+      }
+
+      const requestedPath = location.state?.from?.pathname;
+      const requestedPathIsAdminPortal = requestedPath?.startsWith('/admin') ?? false;
+      const canReturnToRequestedPath = requestedPath
+        && requestedPath !== '/login'
+        && requestedPath !== '/register'
+        && requestedPathIsAdminPortal === selectedAdminPortal;
+      navigate(canReturnToRequestedPath ? requestedPath : selectedAdminPortal ? '/admin' : '/dashboard', { replace: true });
     } catch (authError) {
+      if (signedInUid && auth.currentUser?.uid === signedInUid) {
+        try {
+          await signOut(auth);
+        } catch (signOutError) {
+          console.error('Unable to sign out after role verification failed.', signOutError);
+        }
+      }
       setError(authError.code === 'auth/invalid-credential'
         ? 'Email or password is incorrect.'
-        : 'Unable to sign in. Please try again.');
+        : authError.code
+          ? 'Unable to sign in or verify your platform role. Check your connection and account permissions.'
+          : 'Unable to sign in. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="login-wrapper">
+    <div className="login-wrapper login-role-login">
       
       {/* Header Section */}
       <div className="login-header">
@@ -51,6 +90,43 @@ const Login = () => {
       <div className="login-box">
         <form onSubmit={handleSubmit}>
           {error && <p role="alert">{error}</p>}
+
+          <fieldset className="login-role-picker">
+            <legend>Choose your platform role</legend>
+            <label className={platformRole === 'student' ? 'is-selected' : ''}>
+              <input
+                type="radio"
+                name="platformRole"
+                value="student"
+                checked={platformRole === 'student'}
+                onChange={(event) => setPlatformRole(event.target.value)}
+              />
+              <span><strong>Student / Traveler</strong><small>Plan trips and manage your itinerary</small></span>
+            </label>
+            <label className={platformRole === 'faculty-admin' ? 'is-selected' : ''}>
+              <input
+                type="radio"
+                name="platformRole"
+                value="faculty-admin"
+                checked={platformRole === 'faculty-admin'}
+                onChange={(event) => setPlatformRole(event.target.value)}
+              />
+              <span><strong>Faculty / Admin</strong><small>Staff access to CMS and trip reviews</small></span>
+            </label>
+            <label className={platformRole === 'cms-admin' ? 'is-selected' : ''}>
+              <input
+                type="radio"
+                name="platformRole"
+                value="cms-admin"
+                checked={platformRole === 'cms-admin'}
+                onChange={(event) => setPlatformRole(event.target.value)}
+              />
+              <span><strong>CMS Admin</strong><small>Manage destinations and TravelHub content</small></span>
+            </label>
+            {platformRole !== 'student' && (
+              <p className="login-role-note">Staff access is verified against your existing account role. Choosing an option here does not grant admin permissions.</p>
+            )}
+          </fieldset>
           
           <div className="input-group">
             <label htmlFor="email">Email Address</label>

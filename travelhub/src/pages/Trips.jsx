@@ -1,341 +1,230 @@
-import MyImage1 from "../assets/bestindia.jpg";
-import MyImage2 from "../assets/Islands.jpg";
-import MyImage3 from "../assets/istockphoto.jpg";
-import MyImage4 from "../assets/Kalka.jpg";
-import MyImage5 from "../assets/philippines.png";
-import MyImage6 from "../assets/Sonmarg.jpg";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import {
+  createTrip,
+  deleteTrip,
+  listDestinations,
+  listUserTrips,
+  updateTrip,
+} from "../services/destinationService";
 
-function Trips() {
-    const navigate = useNavigate();
-    const handleTripView = (event) => {
-        if (!event.target.closest?.(".trips-col-date button")) return;
+const blankTrip = {
+  title: "",
+  destinationNames: [],
+  startDate: "",
+  endDate: "",
+  notes: "",
+};
 
-        navigate("/payment", {
-            state: {
-                title: "7 Days tour to Explore the Beauty of philippines",
-                destination: "Maldives, Philippines",
-                duration: "7 days",
-                travelers: 2,
-                price: 1100,
-            },
-        });
-    };
+export default function Trips() {
+  const { user } = useAuth();
+  const [trips, setTrips] = useState([]);
+  const [destinations, setDestinations] = useState([]);
+  const [form, setForm] = useState(blankTrip);
+  const [editingId, setEditingId] = useState(null);
+  const [additionalDestination, setAdditionalDestination] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const refresh = async () => {
+    setError("");
+    try {
+      const [tripResults, destinationResults] = await Promise.all([
+        listUserTrips(user.uid),
+        listDestinations(),
+      ]);
+      setTrips(tripResults);
+      setDestinations(destinationResults);
+    } catch (loadError) {
+      console.error("Unable to load trips.", loadError);
+      setError("Unable to load your trips. Check your Firestore rules and connection.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refresh();
+  }, [user.uid]);
+
+  const changeForm = (event) => {
+    const { name, value } = event.target;
+    setForm((current) => ({ ...current, [name]: value }));
+  };
+
+  const toggleDestination = (name) => {
+    setForm((current) => ({
+      ...current,
+      destinationNames: current.destinationNames.includes(name)
+        ? current.destinationNames.filter((destination) => destination !== name)
+        : [...current.destinationNames, name],
+    }));
+  };
+
+  const resetForm = () => {
+    setForm(blankTrip);
+    setEditingId(null);
+    setAdditionalDestination("");
+  };
+
+  const addManualDestination = () => {
+    const name = additionalDestination.trim();
+    if (!name) return;
+    setForm((current) => ({
+      ...current,
+      destinationNames: current.destinationNames.includes(name)
+        ? current.destinationNames
+        : [...current.destinationNames, name],
+    }));
+    setAdditionalDestination("");
+  };
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setError("");
+
+    if (form.endDate < form.startDate) {
+      setError("The end date must be on or after the start date.");
+      return;
+    }
+    if (form.destinationNames.length === 0) {
+      setError("Choose or add at least one destination.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      if (editingId) await updateTrip(editingId, form);
+      else await createTrip(user.uid, form);
+      resetForm();
+      await refresh();
+    } catch (saveError) {
+      console.error("Unable to save trip.", saveError);
+      setError("Unable to save this trip. Check your Firestore rules and try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const editTrip = (trip) => {
+    setForm({
+      title: trip.title,
+      destinationNames: trip.destinationNames ?? [],
+      startDate: trip.startDate,
+      endDate: trip.endDate,
+      notes: trip.notes ?? "",
+    });
+    setEditingId(trip.id);
+  };
+
+  const removeTrip = async (trip) => {
+    if (!window.confirm(`Delete "${trip.title}" and its itinerary?`)) return;
+    setError("");
+    try {
+      await deleteTrip(trip.id);
+      await refresh();
+    } catch (deleteError) {
+      console.error("Unable to delete trip.", deleteError);
+      setError("Unable to delete this trip. Please try again.");
+    }
+  };
 
   return (
-        <main className="wrapper" onClick={handleTripView}>
+    <main className="planner-page">
+      <section className="planner-container">
+        <header className="planner-header">
+          <div>
+            <p className="planner-eyebrow">YOUR TRAVEL PLANS</p>
+            <h1>My Trips</h1>
+            <p>Create a trip, choose destinations, then build your day-by-day itinerary.</p>
+          </div>
+        </header>
 
-        <section className="trips-section">
-            <div className="trips-row-1">
-                <div className="col-trips-piac-1">
-                    <img src={MyImage1} alt="" width="400px" />
-                </div>
-                <div className="col-trips-piac-2">
-                    <div className="col-trips-piac-row-1">
-                        <h1>7 Days tour to Explore the Beauty of philippines</h1>
-                    </div>
-                    <div className="col-trips-piac-row-2">
-                        <div className="col-trips-piac-in-1">
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M480-388q62-56 88-81t41-44q14-17 20.5-35.5T636-587q0-35-25.5-60.5T550-673q-21 0-40 9t-30 23q-12-14-30.5-23t-39.5-9q-35 0-60.5 25.5T324-587q0 19 6.5 36t20.5 36q16 21 44 48.5t85 78.5Zm0 197q119-107 179.5-197T720-549q0-105-68.5-174T480-792q-103 0-171.5 69T240-549q0 71 60.5 161T480-191Zm0 95Q323-227 245.5-339.5T168-549q0-134 89-224.5T480-864q133 0 222.5 90.5T792-549q0 97-77 209T480-96Zm0-456Z"/></svg>
-                                <p>Maldives, Philippines</p>
-                            </div>
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M298.5-418.29q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29Zm156 0q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29Zm156 0q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29ZM216-96q-29.7 0-50.85-21.5Q144-139 144-168v-528q0-29 21.15-50.5T216-768h72v-96h72v96h240v-96h72v96h72q29.7 0 50.85 21.5Q816-725 816-696v528q0 29-21.15 50.5T744-96H216Zm0-72h528v-360H216v360Zm0-432h528v-96H216v96Zm0 0v-96 96Z"/></svg>
-                                <p>7 Days</p>
-                            </div>
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M96-192v-92q0-25.78 12.5-47.39T143-366q54-32 114.5-49T384-432q66 0 126.5 17T625-366q22 13 34.5 34.61T672-284v92H96Zm648 0v-92q0-42-19.5-78T672-421q39 8 75.5 21.5T817-366q22 13 34.5 34.67Q864-309.65 864-284v92H744ZM282-522q-42-42-42-102t42-102q42-42 102-42t102 42q42 42 42 102t-42 102q-42 42-102 42t-102-42Zm396 0q-42 42-102 42-8 0-15-.5t-15-2.5q25-29 39.5-64.5T600-624q0-41-14.5-76.5T546-765q8-2 15-2.5t15-.5q60 0 102 42t42 102q0 60-42 102ZM168-264h432v-20q0-6.47-3.03-11.76-3.02-5.3-7.97-8.24-47-27-99-41.5T384-360q-54 0-106 14t-99 42q-4.95 2.83-7.98 7.91-3.02 5.09-3.02 12V-264Zm267-309.21q21-21.21 21-51T434.79-675q-21.21-21-51-21T333-674.79q-21 21.21-21 51T333.21-573q21.21 21 51 21T435-573.21ZM384-264Zm0-360Z"/></svg>
-                                <p>2 People</p>
-                            </div>
-                            <div className="trips-row-lorem">
-                                <p>Travel is the movement of people between relatively distant geographical locations, and can involve travel by foot, bicycle,....</p>
-                            </div>
-                        </div>
-                        <div className="col-trips-piac-in-2">
-                            <p className="left">8% off</p>
-                            <div className="row-money-off">
-                                <h2>₹ 1,100</h2>
-                                <h4>₹<del>1,300</del></h4>
-                            </div>
-                            <h5>Naxt Doparture</h5>
-                            <p>July 1, 2026 to July 4, 2026</p>
-                        </div>
-                    </div>
-                </div>
+        <form className="planner-form planner-panel" onSubmit={submit}>
+          <h2>{editingId ? "Edit trip" : "Plan a new trip"}</h2>
+          <div className="planner-fields">
+            <label>
+              Trip name
+              <input name="title" value={form.title} onChange={changeForm} required maxLength={100} placeholder="Summer in Kerala" />
+            </label>
+            <label>
+              Start date
+              <input type="date" name="startDate" value={form.startDate} onChange={changeForm} required />
+            </label>
+            <label>
+              End date
+              <input type="date" name="endDate" value={form.endDate} onChange={changeForm} min={form.startDate} required />
+            </label>
+          </div>
+
+          <fieldset className="planner-destination-picker">
+            <legend>Destinations</legend>
+            {destinations.length > 0 ? (
+              <div className="planner-destination-options">
+                {destinations.map((destination) => (
+                  <label key={destination.id}>
+                    <input
+                      type="checkbox"
+                      checked={form.destinationNames.includes(destination.name)}
+                      onChange={() => toggleDestination(destination.name)}
+                    />
+                    {destination.name} <span>{destination.region}</span>
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <p>No published destinations yet. You can add destinations below.</p>
+            )}
+            <div className="planner-manual-destination">
+              <input
+                value={additionalDestination}
+                onChange={(event) => setAdditionalDestination(event.target.value)}
+                placeholder="Add another destination"
+                aria-label="Add another destination"
+              />
+              <button type="button" className="planner-secondary-button" onClick={addManualDestination}>Add</button>
             </div>
-            <hr />
-            <div className="trips-row-2">
-                <div className="trips-col-date">
-                    <div>
-                        <p>Next Departure</p>
-                        <p>July 1, 2026 to July 4, 2026</p>
-                    </div>
-                    <button>VIEW TRIP</button>
+            {form.destinationNames.length > 0 && (
+              <p className="planner-selection">Selected: {form.destinationNames.join(", ")}</p>
+            )}
+          </fieldset>
+
+          <label>
+            Notes
+            <textarea name="notes" value={form.notes} onChange={changeForm} rows={3} maxLength={1000} placeholder="Anything you want to remember while planning?" />
+          </label>
+          {error && <p className="planner-error" role="alert">{error}</p>}
+          <div className="planner-form-actions">
+            {editingId && <button type="button" className="planner-secondary-button" onClick={resetForm}>Cancel edit</button>}
+            <button type="submit" className="planner-primary-button" disabled={saving}>
+              {saving ? "Saving…" : editingId ? "Save trip" : "Create trip"}
+            </button>
+          </div>
+        </form>
+
+        <section className="planner-trip-list" aria-labelledby="trips-heading">
+          <h2 id="trips-heading">Your trips</h2>
+          {loading && <p role="status">Loading trips…</p>}
+          {!loading && trips.length === 0 && <p className="planner-empty">You haven’t planned a trip yet.</p>}
+          <div className="planner-trip-grid">
+            {trips.map((trip) => (
+              <article className="planner-panel planner-trip-card" key={trip.id}>
+                <p className="planner-trip-dates">{trip.startDate} – {trip.endDate}</p>
+                <h3>{trip.title}</h3>
+                <p>{(trip.destinationNames ?? []).join(" · ")}</p>
+                {trip.notes && <p className="planner-trip-notes">{trip.notes}</p>}
+                <div className="planner-trip-actions">
+                  <Link className="planner-primary-button" to={`/trips/${trip.id}`}>Open itinerary</Link>
+                  <button type="button" className="planner-secondary-button" onClick={() => editTrip(trip)}>Edit</button>
+                  <button type="button" className="planner-danger-button" onClick={() => removeTrip(trip)}>Delete</button>
                 </div>
-            </div>
+              </article>
+            ))}
+          </div>
         </section>
-
-        
-        <section className="trips-section">
-            <div className="trips-row-1">
-                <div className="col-trips-piac-1">
-                    <img src={MyImage2} alt="" width="400px" />
-                </div>
-                <div className="col-trips-piac-2">
-                    <div className="col-trips-piac-row-1">
-                        <h1>7 Days tour to Explore the Beauty of philippines</h1>
-                    </div>
-                    <div className="col-trips-piac-row-2">
-                        <div className="col-trips-piac-in-1">
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M480-388q62-56 88-81t41-44q14-17 20.5-35.5T636-587q0-35-25.5-60.5T550-673q-21 0-40 9t-30 23q-12-14-30.5-23t-39.5-9q-35 0-60.5 25.5T324-587q0 19 6.5 36t20.5 36q16 21 44 48.5t85 78.5Zm0 197q119-107 179.5-197T720-549q0-105-68.5-174T480-792q-103 0-171.5 69T240-549q0 71 60.5 161T480-191Zm0 95Q323-227 245.5-339.5T168-549q0-134 89-224.5T480-864q133 0 222.5 90.5T792-549q0 97-77 209T480-96Zm0-456Z"/></svg>
-                                <p>Maldives, Philippines</p>
-                            </div>
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M298.5-418.29q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29Zm156 0q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29Zm156 0q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29ZM216-96q-29.7 0-50.85-21.5Q144-139 144-168v-528q0-29 21.15-50.5T216-768h72v-96h72v96h240v-96h72v96h72q29.7 0 50.85 21.5Q816-725 816-696v528q0 29-21.15 50.5T744-96H216Zm0-72h528v-360H216v360Zm0-432h528v-96H216v96Zm0 0v-96 96Z"/></svg>
-                                <p>7 Days</p>
-                            </div>
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M96-192v-92q0-25.78 12.5-47.39T143-366q54-32 114.5-49T384-432q66 0 126.5 17T625-366q22 13 34.5 34.61T672-284v92H96Zm648 0v-92q0-42-19.5-78T672-421q39 8 75.5 21.5T817-366q22 13 34.5 34.67Q864-309.65 864-284v92H744ZM282-522q-42-42-42-102t42-102q42-42 102-42t102 42q42 42 42 102t-42 102q-42 42-102 42t-102-42Zm396 0q-42 42-102 42-8 0-15-.5t-15-2.5q25-29 39.5-64.5T600-624q0-41-14.5-76.5T546-765q8-2 15-2.5t15-.5q60 0 102 42t42 102q0 60-42 102ZM168-264h432v-20q0-6.47-3.03-11.76-3.02-5.3-7.97-8.24-47-27-99-41.5T384-360q-54 0-106 14t-99 42q-4.95 2.83-7.98 7.91-3.02 5.09-3.02 12V-264Zm267-309.21q21-21.21 21-51T434.79-675q-21.21-21-51-21T333-674.79q-21 21.21-21 51T333.21-573q21.21 21 51 21T435-573.21ZM384-264Zm0-360Z"/></svg>
-                                <p>2 People</p>
-                            </div>
-                            <div className="trips-row-lorem">
-                                <p>Travel is the movement of people between relatively distant geographical locations, and can involve travel by foot, bicycle,....</p>
-                            </div>
-                        </div>
-                        <div className="col-trips-piac-in-2">
-                            <p className="left">8% off</p>
-                            <div className="row-money-off">
-                                <h2>₹ 1,100</h2>
-                                <h4>₹<del>1,300</del></h4>
-                            </div>
-                            <h5>Naxt Doparture</h5>
-                            <p>July 1, 2026 to July 4, 2026</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <hr />
-            <div className="trips-row-2">
-                <div className="trips-col-date">
-                    <div>
-                        <p>Next Departure</p>
-                        <p>July 1, 2026 to July 4, 2026</p>
-                    </div>
-                    <button>VIEW TRIP</button>
-                </div>
-            </div>
-        </section>
-
-
-        <section className="trips-section">
-            <div className="trips-row-1">
-                <div className="col-trips-piac-1">
-                    <img src={MyImage3} alt="" width="400px" />
-                </div>
-                <div className="col-trips-piac-2">
-                    <div className="col-trips-piac-row-1">
-                        <h1>7 Days tour to Explore the Beauty of philippines</h1>
-                    </div>
-                    <div className="col-trips-piac-row-2">
-                        <div className="col-trips-piac-in-1">
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M480-388q62-56 88-81t41-44q14-17 20.5-35.5T636-587q0-35-25.5-60.5T550-673q-21 0-40 9t-30 23q-12-14-30.5-23t-39.5-9q-35 0-60.5 25.5T324-587q0 19 6.5 36t20.5 36q16 21 44 48.5t85 78.5Zm0 197q119-107 179.5-197T720-549q0-105-68.5-174T480-792q-103 0-171.5 69T240-549q0 71 60.5 161T480-191Zm0 95Q323-227 245.5-339.5T168-549q0-134 89-224.5T480-864q133 0 222.5 90.5T792-549q0 97-77 209T480-96Zm0-456Z"/></svg>
-                                <p>Maldives, Philippines</p>
-                            </div>
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M298.5-418.29q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29Zm156 0q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29Zm156 0q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29ZM216-96q-29.7 0-50.85-21.5Q144-139 144-168v-528q0-29 21.15-50.5T216-768h72v-96h72v96h240v-96h72v96h72q29.7 0 50.85 21.5Q816-725 816-696v528q0 29-21.15 50.5T744-96H216Zm0-72h528v-360H216v360Zm0-432h528v-96H216v96Zm0 0v-96 96Z"/></svg>
-                                <p>7 Days</p>
-                            </div>
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M96-192v-92q0-25.78 12.5-47.39T143-366q54-32 114.5-49T384-432q66 0 126.5 17T625-366q22 13 34.5 34.61T672-284v92H96Zm648 0v-92q0-42-19.5-78T672-421q39 8 75.5 21.5T817-366q22 13 34.5 34.67Q864-309.65 864-284v92H744ZM282-522q-42-42-42-102t42-102q42-42 102-42t102 42q42 42 42 102t-42 102q-42 42-102 42t-102-42Zm396 0q-42 42-102 42-8 0-15-.5t-15-2.5q25-29 39.5-64.5T600-624q0-41-14.5-76.5T546-765q8-2 15-2.5t15-.5q60 0 102 42t42 102q0 60-42 102ZM168-264h432v-20q0-6.47-3.03-11.76-3.02-5.3-7.97-8.24-47-27-99-41.5T384-360q-54 0-106 14t-99 42q-4.95 2.83-7.98 7.91-3.02 5.09-3.02 12V-264Zm267-309.21q21-21.21 21-51T434.79-675q-21.21-21-51-21T333-674.79q-21 21.21-21 51T333.21-573q21.21 21 51 21T435-573.21ZM384-264Zm0-360Z"/></svg>
-                                <p>2 People</p>
-                            </div>
-                            <div className="trips-row-lorem">
-                                <p>Travel is the movement of people between relatively distant geographical locations, and can involve travel by foot, bicycle,....</p>
-                            </div>
-                        </div>
-                        <div className="col-trips-piac-in-2">
-                            <p className="left">8% off</p>
-                            <div className="row-money-off">
-                                <h2>₹ 1,100</h2>
-                                <h4>₹<del>1,300</del></h4>
-                            </div>
-                            <h5>Naxt Doparture</h5>
-                            <p>July 1, 2026 to July 4, 2026</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <hr />
-            <div className="trips-row-2">
-                <div className="trips-col-date">
-                    <div>
-                        <p>Next Departure</p>
-                        <p>July 1, 2026 to July 4, 2026</p>
-                    </div>
-                    <button>VIEW TRIP</button>
-                </div>
-            </div>
-        </section>
-
-
-        <section className="trips-section">
-            <div className="trips-row-1">
-                <div className="col-trips-piac-1">
-                    <img src={MyImage4} alt="" width="400px" />
-                </div>
-                <div className="col-trips-piac-2">
-                    <div className="col-trips-piac-row-1">
-                        <h1>7 Days tour to Explore the Beauty of philippines</h1>
-                    </div>
-                    <div className="col-trips-piac-row-2">
-                        <div className="col-trips-piac-in-1">
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M480-388q62-56 88-81t41-44q14-17 20.5-35.5T636-587q0-35-25.5-60.5T550-673q-21 0-40 9t-30 23q-12-14-30.5-23t-39.5-9q-35 0-60.5 25.5T324-587q0 19 6.5 36t20.5 36q16 21 44 48.5t85 78.5Zm0 197q119-107 179.5-197T720-549q0-105-68.5-174T480-792q-103 0-171.5 69T240-549q0 71 60.5 161T480-191Zm0 95Q323-227 245.5-339.5T168-549q0-134 89-224.5T480-864q133 0 222.5 90.5T792-549q0 97-77 209T480-96Zm0-456Z"/></svg>
-                                <p>Maldives, Philippines</p>
-                            </div>
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M298.5-418.29q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29Zm156 0q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29Zm156 0q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29ZM216-96q-29.7 0-50.85-21.5Q144-139 144-168v-528q0-29 21.15-50.5T216-768h72v-96h72v96h240v-96h72v96h72q29.7 0 50.85 21.5Q816-725 816-696v528q0 29-21.15 50.5T744-96H216Zm0-72h528v-360H216v360Zm0-432h528v-96H216v96Zm0 0v-96 96Z"/></svg>
-                                <p>7 Days</p>
-                            </div>
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M96-192v-92q0-25.78 12.5-47.39T143-366q54-32 114.5-49T384-432q66 0 126.5 17T625-366q22 13 34.5 34.61T672-284v92H96Zm648 0v-92q0-42-19.5-78T672-421q39 8 75.5 21.5T817-366q22 13 34.5 34.67Q864-309.65 864-284v92H744ZM282-522q-42-42-42-102t42-102q42-42 102-42t102 42q42 42 42 102t-42 102q-42 42-102 42t-102-42Zm396 0q-42 42-102 42-8 0-15-.5t-15-2.5q25-29 39.5-64.5T600-624q0-41-14.5-76.5T546-765q8-2 15-2.5t15-.5q60 0 102 42t42 102q0 60-42 102ZM168-264h432v-20q0-6.47-3.03-11.76-3.02-5.3-7.97-8.24-47-27-99-41.5T384-360q-54 0-106 14t-99 42q-4.95 2.83-7.98 7.91-3.02 5.09-3.02 12V-264Zm267-309.21q21-21.21 21-51T434.79-675q-21.21-21-51-21T333-674.79q-21 21.21-21 51T333.21-573q21.21 21 51 21T435-573.21ZM384-264Zm0-360Z"/></svg>
-                                <p>2 People</p>
-                            </div>
-                            <div className="trips-row-lorem">
-                                <p>Travel is the movement of people between relatively distant geographical locations, and can involve travel by foot, bicycle,....</p>
-                            </div>
-                        </div>
-                        <div className="col-trips-piac-in-2">
-                            <p className="left">8% off</p>
-                            <div className="row-money-off">
-                                <h2>₹ 1,100</h2>
-                                <h4>₹<del>1,300</del></h4>
-                            </div>
-                            <h5>Naxt Doparture</h5>
-                            <p>July 1, 2026 to July 4, 2026</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <hr />
-            <div className="trips-row-2">
-                <div className="trips-col-date">
-                    <div>
-                        <p>Next Departure</p>
-                        <p>July 1, 2026 to July 4, 2026</p>
-                    </div>
-                    <button>VIEW TRIP</button>
-                </div>
-            </div>
-        </section>
-
-        <section className="trips-section">
-            <div className="trips-row-1">
-                <div className="col-trips-piac-1">
-                    <img src={MyImage5} alt="" width="400px" />
-                </div>
-                <div className="col-trips-piac-2">
-                    <div className="col-trips-piac-row-1">
-                        <h1>7 Days tour to Explore the Beauty of philippines</h1>
-                    </div>
-                    <div className="col-trips-piac-row-2">
-                        <div className="col-trips-piac-in-1">
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M480-388q62-56 88-81t41-44q14-17 20.5-35.5T636-587q0-35-25.5-60.5T550-673q-21 0-40 9t-30 23q-12-14-30.5-23t-39.5-9q-35 0-60.5 25.5T324-587q0 19 6.5 36t20.5 36q16 21 44 48.5t85 78.5Zm0 197q119-107 179.5-197T720-549q0-105-68.5-174T480-792q-103 0-171.5 69T240-549q0 71 60.5 161T480-191Zm0 95Q323-227 245.5-339.5T168-549q0-134 89-224.5T480-864q133 0 222.5 90.5T792-549q0 97-77 209T480-96Zm0-456Z"/></svg>
-                                <p>Maldives, Philippines</p>
-                            </div>
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M298.5-418.29q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29Zm156 0q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29Zm156 0q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29ZM216-96q-29.7 0-50.85-21.5Q144-139 144-168v-528q0-29 21.15-50.5T216-768h72v-96h72v96h240v-96h72v96h72q29.7 0 50.85 21.5Q816-725 816-696v528q0 29-21.15 50.5T744-96H216Zm0-72h528v-360H216v360Zm0-432h528v-96H216v96Zm0 0v-96 96Z"/></svg>
-                                <p>7 Days</p>
-                            </div>
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M96-192v-92q0-25.78 12.5-47.39T143-366q54-32 114.5-49T384-432q66 0 126.5 17T625-366q22 13 34.5 34.61T672-284v92H96Zm648 0v-92q0-42-19.5-78T672-421q39 8 75.5 21.5T817-366q22 13 34.5 34.67Q864-309.65 864-284v92H744ZM282-522q-42-42-42-102t42-102q42-42 102-42t102 42q42 42 42 102t-42 102q-42 42-102 42t-102-42Zm396 0q-42 42-102 42-8 0-15-.5t-15-2.5q25-29 39.5-64.5T600-624q0-41-14.5-76.5T546-765q8-2 15-2.5t15-.5q60 0 102 42t42 102q0 60-42 102ZM168-264h432v-20q0-6.47-3.03-11.76-3.02-5.3-7.97-8.24-47-27-99-41.5T384-360q-54 0-106 14t-99 42q-4.95 2.83-7.98 7.91-3.02 5.09-3.02 12V-264Zm267-309.21q21-21.21 21-51T434.79-675q-21.21-21-51-21T333-674.79q-21 21.21-21 51T333.21-573q21.21 21 51 21T435-573.21ZM384-264Zm0-360Z"/></svg>
-                                <p>2 People</p>
-                            </div>
-                            <div className="trips-row-lorem">
-                                <p>Travel is the movement of people between relatively distant geographical locations, and can involve travel by foot, bicycle,....</p>
-                            </div>
-                        </div>
-                        <div className="col-trips-piac-in-2">
-                            <p className="left">8% off</p>
-                            <div className="row-money-off">
-                                <h2>₹ 1,100</h2>
-                                <h4>₹<del>1,300</del></h4>
-                            </div>
-                            <h5>Naxt Doparture</h5>
-                            <p>July 1, 2026 to July 4, 2026</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <hr />
-            <div className="trips-row-2">
-                <div className="trips-col-date">
-                    <div>
-                        <p>Next Departure</p>
-                        <p>July 1, 2026 to July 4, 2026</p>
-                    </div>
-                    <button>VIEW TRIP</button>
-                </div>
-            </div>
-        </section>
-
-        <section className="trips-section">
-            <div className="trips-row-1">
-                <div className="col-trips-piac-1">
-                    <img src={MyImage6} alt="" width="400px" />
-                </div>
-                <div className="col-trips-piac-2">
-                    <div className="col-trips-piac-row-1">
-                        <h1>7 Days tour to Explore the Beauty of philippines</h1>
-                    </div>
-                    <div className="col-trips-piac-row-2">
-                        <div className="col-trips-piac-in-1">
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M480-388q62-56 88-81t41-44q14-17 20.5-35.5T636-587q0-35-25.5-60.5T550-673q-21 0-40 9t-30 23q-12-14-30.5-23t-39.5-9q-35 0-60.5 25.5T324-587q0 19 6.5 36t20.5 36q16 21 44 48.5t85 78.5Zm0 197q119-107 179.5-197T720-549q0-105-68.5-174T480-792q-103 0-171.5 69T240-549q0 71 60.5 161T480-191Zm0 95Q323-227 245.5-339.5T168-549q0-134 89-224.5T480-864q133 0 222.5 90.5T792-549q0 97-77 209T480-96Zm0-456Z"/></svg>
-                                <p>Maldives, Philippines</p>
-                            </div>
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M298.5-418.29q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29Zm156 0q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29Zm156 0q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29ZM216-96q-29.7 0-50.85-21.5Q144-139 144-168v-528q0-29 21.15-50.5T216-768h72v-96h72v96h240v-96h72v96h72q29.7 0 50.85 21.5Q816-725 816-696v528q0 29-21.15 50.5T744-96H216Zm0-72h528v-360H216v360Zm0-432h528v-96H216v96Zm0 0v-96 96Z"/></svg>
-                                <p>7 Days</p>
-                            </div>
-                            <div className="trips-row-map">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M96-192v-92q0-25.78 12.5-47.39T143-366q54-32 114.5-49T384-432q66 0 126.5 17T625-366q22 13 34.5 34.61T672-284v92H96Zm648 0v-92q0-42-19.5-78T672-421q39 8 75.5 21.5T817-366q22 13 34.5 34.67Q864-309.65 864-284v92H744ZM282-522q-42-42-42-102t42-102q42-42 102-42t102 42q42 42 42 102t-42 102q-42 42-102 42t-102-42Zm396 0q-42 42-102 42-8 0-15-.5t-15-2.5q25-29 39.5-64.5T600-624q0-41-14.5-76.5T546-765q8-2 15-2.5t15-.5q60 0 102 42t42 102q0 60-42 102ZM168-264h432v-20q0-6.47-3.03-11.76-3.02-5.3-7.97-8.24-47-27-99-41.5T384-360q-54 0-106 14t-99 42q-4.95 2.83-7.98 7.91-3.02 5.09-3.02 12V-264Zm267-309.21q21-21.21 21-51T434.79-675q-21.21-21-51-21T333-674.79q-21 21.21-21 51T333.21-573q21.21 21 51 21T435-573.21ZM384-264Zm0-360Z"/></svg>
-                                <p>2 People</p>
-                            </div>
-                            <div className="trips-row-lorem">
-                                <p>Travel is the movement of people between relatively distant geographical locations, and can involve travel by foot, bicycle,....</p>
-                            </div>
-                        </div>
-                        <div className="col-trips-piac-in-2">
-                            <p className="left">8% off</p>
-                            <div className="row-money-off">
-                                <h2>₹ 1,100</h2>
-                                <h4>₹<del>1,300</del></h4>
-                            </div>
-                            <h5>Naxt Doparture</h5>
-                            <p>July 1, 2026 to July 4, 2026</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <hr />
-            <div className="trips-row-2">
-                <div className="trips-col-date">
-                    <div>
-                        <p>Next Departure</p>
-                        <p>July 1, 2026 to July 4, 2026</p>
-                    </div>
-                    <button>VIEW TRIP</button>
-                </div>
-            </div>
-        </section>
-        
+      </section>
     </main>
-    );
+  );
 }
-
-export default Trips;

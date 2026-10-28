@@ -1,68 +1,69 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { listSavedDestinations, setDestinationSaved } from "../services/destinationService";
 
-const demoUser = {
-    name:"Nantha kumar.T",
-    email:"nantha2005@gmail.com",
-    city:"Trichy",
-    favourite:"munnar",
-};
+export default function Profile() {
+  const { user, profile } = useAuth();
+  const [saved, setSaved] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-const trips =[
-    {place:"Munnar Hills", date:"Oct 2026", status:"Upcoming"},
-    {place:"Chennai", date:"Jan 2027", status:"Completed"},
-    {place:"Mysore", date:"May 2027", status:"Completed"},
-];
-
-  function Profile(){
-    const [form,setForm]=useState(demoUser);
-    const initials = form.name.trim().split(/\s+/).map((word)=>word[0]).join("").slice(0, 2).toUpperCase();
-      const change = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-  const save = (e) => {
-    e.preventDefault();
-    alert("Profile saved!");
+  const refresh = async () => {
+    try {
+      setSaved(await listSavedDestinations(user.uid));
+      setError("");
+    } catch (loadError) {
+      console.error("Unable to load saved destinations.", loadError);
+      setError("Unable to load saved destinations. Check your Firestore rules and connection.");
+    } finally {
+      setLoading(false);
+    }
   };
-  return(
-    <section className="profile">
-        <div className="profile-page">
-            <div className="card head">
-                <div className="initials">{initials}</div>
-                <div className="grow">
-                    <h1>{form.name}</h1>
-                    <p>{form.email}.{form.city}</p>
-                </div>
-                 <button  className="btn-8 ghost">Log Out</button>
-            </div>
-              <div className="card stats">
-                <div><b>12</b><span>Trips planned</span></div>
-                <div><b>5</b><span>Countries</span></div>
-                <div><b>28</b><span>Saved places</span></div>
-              </div>
 
-                <form className="card" onSubmit={save}>
+  useEffect(() => {
+    refresh();
+  }, [user.uid]);
 
-                    <h2>EDIT PROFILE</h2>
-                    <div className="form">
-                        <div><label>Full name</label><input name="name" value={form.name} onChange={change} /></div>
-                        <div><label>Email</label><input name="email" type="email" value={form.email} onChange={change} /></div>
-                        <div><label>Home city</label><input name="city" value={form.city} onChange={change} /></div>
-                        <div><label>Favourite destination</label><input name="favourite" value={form.favourite} onChange={change} /></div>
-                    </div>
-                    <p style={{ margin: "18px 0 0" }}><button className="btn-8" type="submit">Save changes</button></p>
-                </form>
+  const removeSaved = async (destination) => {
+    try {
+      await setDestinationSaved(user.uid, destination, false);
+      setSaved((current) => current.filter((item) => item.id !== destination.id));
+    } catch (removeError) {
+      console.error("Unable to remove saved destination.", removeError);
+      setError("Unable to remove this destination. Please try again.");
+    }
+  };
 
-                <div className="card">
-
-                   <h2>MY TRIPS</h2>
-                    {trips.map((t) => (
-                   <div className="trip" key={t.place}>
-                   <div>{t.place}<small>{t.date}</small></div>
-                   <span className="tag">{t.status}</span>
-                    </div>
-                    ))}
-                </div>
-
+  return (
+    <main className="planner-page">
+      <section className="planner-container">
+        <p className="planner-eyebrow">YOUR TRAVELHUB ACCOUNT</p>
+        <h1 className="admin-page-title">{profile?.name || user.displayName || "Your profile"}</h1>
+        <p className="admin-page-intro">{user.email}</p>
+        <div className="profile-section-heading">
+          <div>
+            <h2>Saved destinations</h2>
+            <p>Places you’ve saved while browsing.</p>
+          </div>
+          <Link className="planner-primary-button" to="/destinations">Explore destinations</Link>
         </div>
-    </section>
+        {error && <p className="planner-error" role="alert">{error}</p>}
+        {loading && <p role="status">Loading saved destinations…</p>}
+        {!loading && !error && saved.length === 0 && <p className="planner-empty">You haven’t saved any destinations yet.</p>}
+        <div className="saved-destination-grid">
+          {saved.map((destination) => (
+            <article className="planner-panel saved-destination-card" key={destination.id}>
+              {destination.imageUrl && <img src={destination.imageUrl} alt="" />}
+              <div>
+                <h3>{destination.name}</h3>
+                <p>{destination.region}</p>
+              </div>
+              <button type="button" className="planner-danger-button" onClick={() => removeSaved(destination)}>Remove</button>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
   );
 }
-export default Profile;

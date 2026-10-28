@@ -29,23 +29,36 @@ TravelHub allows users to explore destinations, create travel plans, manage itin
 
 ### ✈️ Trip Planner
 
-* Create a new trip
-* Add destinations
-* Set travel dates
-* Create daily itineraries
-* Add activities and notes
-* Edit and manage trips
-* Save destinations
+* Create, edit, and delete personal trips
+* Add published or custom destinations to a trip
+* Set travel dates and trip notes
+* Create, edit, and delete dated itinerary activities
+* Save destinations to a personal profile
 
 ### ⚙️ Admin CMS
 
-* Admin dashboard
-* Add destinations
-* Edit destinations
-* Delete destinations
-* Manage categories
-* View users/trips
-* Featured destination management
+* Admin dashboard with Firestore record counts
+* Add, edit, publish, and delete destinations
+* Manage destination categories
+* Set destination categories, featured status, image, and accessibility details
+* View registered users and trips
+
+### 🧭 Separate Portals
+
+TravelHub provides two role-aware workspaces behind Firebase Authentication:
+
+* **Traveler portal** (`/dashboard`) includes a personal trip summary, upcoming
+  itinerary links, saved-destination count, and shortcuts to discovery and trip
+  planning. Its sidebar links to trips and saved destinations.
+* **Admin CMS portal** (`/admin`) includes destination/category/user/trip
+  summary counts and shortcuts to the admin workspaces. The **Trips & Users**
+  page (`/admin/trips`) has tabs for student trips and registered accounts,
+  plus read-only itinerary inspection. Its sidebar links to CMS overview,
+  destination management, and Trips & Users.
+* Both portals share a top bar with the signed-in profile and role, while
+  the account menu provides explicit portal switching. Admin CMS is only
+  enabled for profiles marked `role: "admin"`; other users see it as staff-only.
+  Firestore security rules must separately enforce data access.
 
 ### ✨ Modern UI
 
@@ -91,6 +104,7 @@ travelhub/
 │   ├── components/
 │   │   ├── Navbar.jsx
 │   │   ├── Footer.jsx
+│   │   ├── PortalLayout.jsx
 │   │   ├── DestinationCard.jsx
 │   │   ├── SearchBar.jsx
 │   │   └── ProtectedRoute.jsx
@@ -108,6 +122,8 @@ travelhub/
 │   │   │
 │   │   └── admin/
 │   │       ├── AdminDashboard.jsx
+│   │       ├── TripsUsers.jsx
+│   │       ├── TripDetails.jsx
 │   │       ├── DestinationsCMS.jsx
 │   │       └── Users.jsx
 │   │
@@ -115,16 +131,17 @@ travelhub/
 │   │   └── firebaseConfig.js
 │   │
 │   ├── hooks/
+│   │   └── useAuth.js
 │   │
 │   ├── services/
 │   │   ├── authService.js
 │   │   └── destinationService.js
 │   │
+│   ├── App.css
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── index.css
 │
-├── .env
 ├── .gitignore
 ├── package.json
 └── README.md
@@ -147,7 +164,7 @@ Example:
   name: "Student Name",
   email: "student@example.com",
   photoURL: "",
-  role: "user",
+  role: "student",
   createdAt: timestamp
 }
 ```
@@ -164,13 +181,14 @@ Example:
 {
   name: "Munnar",
   slug: "munnar",
-  state: "Kerala",
-  city: "Munnar",
-  category: "Nature",
-  description: "Beautiful hill destination",
-  imageUrl: "",
-  featured: true,
-  accessibilityInfo: ""
+  region: "Kerala",
+  categories: ["Nature", "Hill"],
+  description: "Tea gardens and misty viewpoints.",
+  imageUrl: "https://example.com/munnar.jpg",
+  bestSeason: "Sep to Mar",
+  accessibility: ["wheelchair", "parking"],
+  featured: false,
+  published: true
 }
 ```
 
@@ -184,11 +202,12 @@ Example:
 
 ```text
 {
-  userId: "USER_ID",
+  ownerId: "USER_ID",
   title: "Kerala Trip",
+  destinationNames: ["Munnar"],
   startDate: "2026-10-10",
   endDate: "2026-10-15",
-  status: "upcoming",
+  notes: "",
   createdAt: timestamp
 }
 ```
@@ -204,38 +223,73 @@ Example:
 ```text
 {
   date: "2026-10-11",
-  destinationId: "DESTINATION_ID",
   activity: "Visit Tea Museum",
   notes: "Morning visit",
-  order: 1
+  createdAt: timestamp
 }
 ```
+
+### Destination and category documents
+
+Destination records are stored in `destinations/{destinationId}`. The CMS uses
+these fields:
+
+```text
+{
+  name: "Munnar",
+  slug: "munnar",
+  region: "Kerala",
+  categories: ["Nature", "Hill"],
+  description: "Tea gardens and misty viewpoints.",
+  imageUrl: "https://example.com/munnar.jpg",
+  bestSeason: "Sep to Mar",
+  accessibility: ["wheelchair", "parking"],
+  featured: false,
+  published: true
+}
+```
+
+Category documents are stored in `categories/{categoryId}` with a `name` field.
+Accessibility values accepted by the frontend are `wheelchair`,
+`accessibleToilets`, `visualSignage`, `communicationSupport`, and `parking`.
+
+User-created trips are stored in `trips/{tripId}` and contain an `ownerId`,
+`title`, `destinationNames`, `startDate`, `endDate`, and `notes`. Daily activity
+documents are stored below `trips/{tripId}/itinerary/{itemId}`. Saved places are
+stored below `users/{uid}/savedDestinations/{destinationId}`.
 
 ---
 
 ## 🔐 Authentication Flow
 
 ```text
-Register
+Register as Student / Traveler
    ↓
 Firebase Authentication
    ↓
-Create User Profile
+Create Firestore Profile (role: "student")
    ↓
-Firestore
-   ↓
-Login
-   ↓
-Protected Dashboard
-   ↓
-Trips / Saved Destinations / Profile
+Sign in and choose platform role
+   ├── Student / Traveler ──→ Traveler Portal
+   ├── Faculty / Admin ─────→ CMS Portal (authorized staff only)
+   └── CMS Admin ───────────→ CMS Portal (authorized staff only)
 ```
+
+The role choice at sign-in selects the intended portal; it does not grant
+permissions. Student accounts are checked against their Firestore profile.
+Faculty/Admin and CMS Admin currently use the same `role: "admin"` profile and
+permissions. Admin profiles must be provisioned by an administrator. A role
+mismatch is rejected and the session is signed out.
 
 ---
 
 ## 🛡️ Security
 
 Firebase Security Rules should be used to control access to Firestore data.
+This project does not include Firebase rules or CLI deployment configuration.
+Configure and test production rules in the Firebase Console before enabling
+client-side writes. The UI's protected routes are not a replacement for database
+security rules.
 
 Example concept:
 
@@ -323,22 +377,36 @@ Create a Firebase project and enable:
 * Cloud Firestore
 * Storage (optional)
 
-Create a `.env` file:
+Configure the Firebase web app values in
+[`travelhub/src/firebase/firebaseConfig.js`](./travelhub/src/firebase/firebaseConfig.js).
+These are client-side Firebase settings; never put Firebase Admin SDK credentials
+or service-account private keys in the frontend.
 
-```env
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-```
+New registrations automatically create a `users/{uid}` Firestore profile with
+`role: "student"`. Existing profiles with `role: "user"` continue to work as
+traveler accounts. Sign-in reads the signed-in user's profile, so Firestore rules
+must allow an authenticated user to read their own `users/{uid}` document.
 
-### 5. Start development server
+To grant the first Faculty/Admin or CMS Admin access:
+
+1. Register a normal account in the app.
+2. Find that account's UID in Firebase Authentication.
+3. In the Firestore console, create or update `users/{uid}` for that account and
+   set `role` to `admin` (also include its `name` and `email` fields).
+4. Configure Firestore security rules to limit that profile update to a trusted
+   administrator; never allow users to assign themselves the `admin` role.
+
+Do not let the browser client assign admin roles. Admin screens check the
+Firestore user profile; configure database security rules separately to enforce
+the same permissions on Firestore requests.
+
+### 5. Start the development server
 
 ```bash
 npm run dev
 ```
+
+Run these commands from the `travelhub/` directory.
 
 Open the local development URL shown by Vite.
 
@@ -354,14 +422,19 @@ Open the local development URL shown by Vite.
 ├── /register
 ├── /dashboard
 ├── /trips
-├── /trips/:id
+├── /trips/:tripId
 ├── /profile
 │
-└── /admin
-    ├── /admin/destinations
-    ├── /admin/users
-    └── /admin/trips
+├── /admin
+├── /admin/destinations
+├── /admin/trips
+├── /admin/users
+└── /admin/trips/:tripId
 ```
+
+The traveler and CMS routes use separate portal sidebars and dashboards.
+`/admin/trips/:tripId` is a read-only itinerary view for CMS staff. The
+`/admin/users` route provides the full registered-user list.
 
 ---
 
