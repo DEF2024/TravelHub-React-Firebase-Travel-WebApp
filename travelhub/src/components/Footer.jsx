@@ -122,11 +122,11 @@ function Footer() {
           </div>
         </div>
       </div>
-
-      <div className="footer-rightcopy" style={{ position: "relative", zIndex: 1 }}>
-        <p>&copy; 2026 TravelHub. Student Project - Educational Use.</p>
-        <p>Built with love using React &amp; Firebase</p>
-      </div>
+      
+            {/* <div className="footer-rightcopy" style={{ position: "relative", zIndex: 1 }}>
+              <p>&copy; 2026 TravelHub. Student Project - Educational Use.</p>
+              <p>Built with love using React &amp; Firebase</p>
+            </div> */}
     </footer>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import IndiaImage from "../assets/bestindia.jpg";
 import IslandsImage from "../assets/Islands.jpg";
 import FeaturedImage from "../assets/istockphoto.jpg";
@@ -14,10 +14,10 @@ import CityIcon from "../assets/city-icon.png";
 import HillIcon from "../assets/hill-icon.png";
 import { useAuth } from "../hooks/useAuth";
 import {
-    listCategories,
-    listDestinations,
     listSavedDestinations,
     setDestinationSaved,
+    watchCategories,
+    watchDestinations,
 } from "../services/destinationService";
 
 const categories = ["All", "Nature", "Beach", "Heritage", "Adventure", "City", "Hill"];
@@ -51,18 +51,20 @@ const initialDestinations = [
     { id: "chennai", image: IndiaImage, name: "Chennai", region: "Tamil Nadu", categories: ["City", "Beach"], accessibility: ["wheelchair", "accessibleToilets", "visualSignage", "parking"] },
     { id: "kochi", image: IslandsImage, name: "Kochi", region: "Kerala", categories: ["City", "Beach", "Heritage"], accessibility: ["wheelchair", "visualSignage", "communicationSupport", "parking"] },
     { id: "bengaluru", image: FeaturedImage, name: "Bengaluru", region: "Karnataka", categories: ["City", "Nature"], accessibility: ["wheelchair", "accessibleToilets", "visualSignage", "communicationSupport", "parking"] },
-    { id: "munnar", image: SonmargImage, name: "Munnar", region: "Kerala", categories: ["Nature", "Hill"], accessibility: ["parking"] },
-    { id: "manali", image: KalkaImage, name: "Manali", region: "Himachal Pradesh", categories: ["Nature", "Hill", "Adventure"], accessibility: ["wheelchair", "visualSignage", "parking"] },
-    { id: "rishikesh", image: KalkaImage, name: "Rishikesh", region: "Uttarakhand", categories: ["Nature", "Adventure"], accessibility: ["wheelchair", "accessibleToilets", "visualSignage", "communicationSupport", "parking"] },
-    { id: "ooty", image: SonmargImage, name: "Ooty", region: "Tamil Nadu", categories: ["Nature", "Hill"], accessibility: ["wheelchair", "accessibleToilets", "visualSignage", "communicationSupport", "parking"] },
-].map((destination) => ({ ...destination, accessibility: [] }));
+].map((destination, index) => ({
+    ...destination,
+    featured: destination.featured ?? [0, 2, 5, 8].includes(index),
+    rating: destination.rating ?? "4.9",
+    reviews: destination.reviews ?? 290 + index * 80,
+    description: destination.description ?? `The world's largest coral reef ecosystem. Experience world-class citizen marine adventures in ${destination.region}.`,
+}));
 
 function Destinations() {
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
     const { user } = useAuth();
     const requestedCategory = searchParams.get("category");
-    const [searchTerm, setSearchTerm] = useState("");
+    const [searchTerm, setSearchTerm] = useState(searchParams.get("q") ?? "");
     const [selectedRegion, setSelectedRegion] = useState("All regions");
     const [sortOrder, setSortOrder] = useState("name");
     const [destinations, setDestinations] = useState(initialDestinations);
@@ -72,6 +74,8 @@ function Destinations() {
     const [dataError, setDataError] = useState("");
     const [usingSampleData, setUsingSampleData] = useState(false);
     const [savingFavourite, setSavingFavourite] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const destinationsPerPage = 8;
     const selectedCategory = availableCategories.includes(requestedCategory) ? requestedCategory : "All";
     const regions = useMemo(
         () => [...new Set(destinations.map((destination) => destination.region).filter(Boolean))].sort(),
@@ -80,29 +84,46 @@ function Destinations() {
 
     useEffect(() => {
         let active = true;
-        Promise.all([listDestinations(), listCategories()])
-            .then(([destinationResults, categoryResults]) => {
-                if (!active) return;
-                if (destinationResults.length > 0) setDestinations(destinationResults);
-                else setUsingSampleData(true);
-                const firestoreCategories = categoryResults.map((category) => category.name);
-                const destinationCategories = destinationResults.flatMap((destination) => destination.categories ?? []);
-                const available = firestoreCategories.length
-                    ? firestoreCategories
-                    : [...new Set(destinationCategories)];
-                if (available.length > 0) setAvailableCategories(["All", ...available]);
-            })
-            .catch((loadError) => {
-                console.error("Unable to load public destination data.", loadError);
-                if (active) {
-                    setUsingSampleData(true);
-                    setDataError("Could not load the latest destinations from Firestore. Showing the included sample places.");
-                }
-            })
-            .finally(() => {
-                if (active) setLoading(false);
-            });
-        return () => { active = false; };
+        let destinationLoaded = false;
+        let categoriesLoaded = false;
+
+        const finishLoading = () => {
+            if (destinationLoaded && categoriesLoaded && active) setLoading(false);
+        };
+        const unsubscribeDestinations = watchDestinations((destinationResults) => {
+            if (!active) return;
+            destinationLoaded = true;
+            setDestinations(destinationResults.length > 0 ? destinationResults : initialDestinations);
+            setUsingSampleData(destinationResults.length === 0);
+            finishLoading();
+        }, (loadError) => {
+            console.error("Unable to watch public destination data.", loadError);
+            if (active) {
+                setUsingSampleData(true);
+                setDataError("Could not load the latest destinations from Firestore. Showing the included sample places.");
+                destinationLoaded = true;
+                finishLoading();
+            }
+        });
+        const unsubscribeCategories = watchCategories((categoryResults) => {
+            if (!active) return;
+            categoriesLoaded = true;
+            const firestoreCategories = categoryResults.map((category) => category.name);
+            if (firestoreCategories.length > 0) setAvailableCategories(["All", ...firestoreCategories]);
+            finishLoading();
+        }, (loadError) => {
+            console.error("Unable to watch destination categories.", loadError);
+            if (active) {
+                categoriesLoaded = true;
+                finishLoading();
+            }
+        });
+
+        return () => {
+            active = false;
+            unsubscribeDestinations();
+            unsubscribeCategories();
+        };
     }, []);
 
     useEffect(() => {
@@ -139,13 +160,29 @@ function Destinations() {
         });
     }, [normalizedSearch, selectedCategory, selectedRegion, sortOrder]);
 
+    const totalPages = Math.max(1, Math.ceil(filteredDestinations.length / destinationsPerPage));
+    const visibleDestinations = filteredDestinations.slice(
+        (currentPage - 1) * destinationsPerPage,
+        currentPage * destinationsPerPage,
+    );
+
+    useEffect(() => {
+        if (currentPage > totalPages) setCurrentPage(totalPages);
+    }, [currentPage, totalPages]);
+
+    const changePage = (page) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
     const handleCategoryChange = (category) => {
+        setCurrentPage(1);
         setSearchParams(category === "All" ? {} : { category });
     };
     const resetFilters = () => {
         setSearchTerm("");
         setSelectedRegion("All regions");
         setSortOrder("name");
+        setCurrentPage(1);
         setSearchParams({});
     };
     const toggleFavourite = async (destination) => {
@@ -187,12 +224,15 @@ function Destinations() {
                         <input
                             type="search"
                             value={searchTerm}
-                            onChange={(event) => setSearchTerm(event.target.value)}
+                            onChange={(event) => {
+                                setSearchTerm(event.target.value);
+                                setCurrentPage(1);
+                            }}
                             placeholder="Search keyword, city, or state..."
                         />
                     </label>
                     <label className="visually-hidden" htmlFor="destination-region">Filter by state or region</label>
-                    <select id="destination-region" value={selectedRegion} onChange={(event) => setSelectedRegion(event.target.value)}>
+                    <select id="destination-region" value={selectedRegion} onChange={(event) => { setSelectedRegion(event.target.value); setCurrentPage(1); }}>
                         <option>All regions</option>
                         {regions.map((region) => <option key={region}>{region}</option>)}
                     </select>
@@ -205,7 +245,7 @@ function Destinations() {
                         {categories.map((category) => <option key={category} value={category}>{category === "All" ? "All Categories" : category}</option>)}
                     </select>
                     <label className="visually-hidden" htmlFor="destination-sort">Sort destinations</label>
-                    <select id="destination-sort" value={sortOrder} onChange={(event) => setSortOrder(event.target.value)}>
+                    <select id="destination-sort" value={sortOrder} onChange={(event) => { setSortOrder(event.target.value); setCurrentPage(1); }}>
                         <option value="name">Sort: Name A-Z</option>
                         <option value="region">Sort: State A-Z</option>
                     </select>
@@ -238,8 +278,9 @@ function Destinations() {
             </section>
 
             {filteredDestinations.length > 0 ? (
+                <>
                 <section className="destination-results" aria-label="Destination search results">
-                    {filteredDestinations.map((destination) => {
+                    {visibleDestinations.map((destination) => {
                         const isFavourite = favourites.has(destination.id);
                         const destinationImage = destination.imageUrl || destination.image || FeaturedImage;
                         return (
@@ -247,13 +288,8 @@ function Destinations() {
                                 <div className="destination-result-image">
                                     <img src={destinationImage} alt={destination.name} />
                                     <div className="destination-result-badges">
-                                        {destination.featured && <span className="is-featured">Featured</span>}
-                                        {destination.categories.slice(0, 2).map((category) => (
-                                            <span key={category}>
-                                                <img src={categoryIcons[category]} alt="" aria-hidden="true" />
-                                                {category}
-                                            </span>
-                                        ))}
+                                        {destination.featured && <span className="is-featured">✦ Featured</span>}
+                                        <span className="destination-eco-badge">♧ Eco</span>
                                     </div>
                                     <button
                                         type="button"
@@ -267,40 +303,56 @@ function Destinations() {
                                     </button>
                                 </div>
                                 <div className="destination-result-copy">
-                                    <p className="destination-result-location">
-                                        <span aria-hidden="true">⌖</span> {destination.name}, {destination.region}
-                                    </p>
-                                    <h2>{destination.name}</h2>
-                                    <p className="destination-result-description">
-                                        Explore {destination.name} and discover destinations across {destination.region}.
-                                    </p>
-                                    <p className="destination-result-category">DESTINATION CATEGORIES</p>
-                                    <div className="destination-result-tags">
-                                        {destination.categories.map((category) => (
-                                            <span key={category}>
-                                                <img src={categoryIcons[category]} alt="" aria-hidden="true" />
-                                                {category}
-                                            </span>
-                                        ))}
+                                    <div className="destination-result-summary">
+                                        <p className="destination-result-location">
+                                            <span aria-hidden="true">⌖</span> {destination.region === destination.name ? destination.name : `${destination.name}, ${destination.region}`}
+                                        </p>
                                     </div>
+                                    <p className="destination-result-rating">★ <span>{destination.rating ?? "4.9"} ({destination.reviews ?? 290})</span></p>
+                                    <h2>{destination.name === "Featured destination" ? "Great Barrier Reef Marine Life" : destination.name}</h2>
+                                    <p className="destination-result-description">
+                                        {destination.description}
+                                    </p>
                                     <p className="destination-result-category">ACCESSIBILITY HIGHLIGHTS</p>
-                                    <div className="destination-accessibility-list">
-                                        {(destination.accessibility ?? []).map((featureId) => {
-                                            const feature = accessibilityFeatures.find((item) => item.id === featureId);
-                                            if (!feature) return null;
-                                            return (
-                                                <span className="destination-accessibility-item" key={feature.id} title={feature.label}>
-                                                    <AccessibilitySymbol type={feature.symbol} />
-                                                    {feature.label}
-                                                </span>
-                                            );
-                                        })}
+                                    <div className="destination-accessibility-icons" aria-label="Accessibility supports">
+                                        <span title="Assistance / mobility support">🚶</span>
+                                        <span title="Wheelchair accessibility">♿</span>
+                                        <span title="Accessible parking">🅿️</span>
+                                        <span title="Hearing accessibility">🦻</span>
+                                    </div>
+                                    <div className="destination-result-actions">
+                                        <Link to={`/destinations?q=${encodeURIComponent(destination.name)}`}>Explore Guide →</Link>
+                                        <Link to="/trips">＋ Add to Trip</Link>
                                     </div>
                                 </div>
                             </article>
                         );
                     })}
                 </section>
+                {totalPages > 1 && (
+                    <nav className="destination-pagination" aria-label="Destination pages">
+                        <button
+                            type="button"
+                            className="destination-page-arrow"
+                            onClick={() => changePage(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            aria-label="Previous page"
+                        >
+                            ‹
+                        </button>
+                        <span>Page {currentPage} of {totalPages}</span>
+                        <button
+                            type="button"
+                            className="destination-page-arrow"
+                            onClick={() => changePage(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            aria-label="Next page"
+                        >
+                            ›
+                        </button>
+                    </nav>
+                )}
+                </>
             ) : loading ? (
                 <p className="destination-empty" role="status">Loading destinations…</p>
             ) : (

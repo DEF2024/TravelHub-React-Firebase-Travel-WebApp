@@ -47,6 +47,8 @@ function App() {
             <Route path="/destinations" element={<Destinations />} />
             <Route path="/DestinationCard" element={<Navigate to="/destinations" replace />} />
             <Route path="/payment" element={<Payment />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Route>
           <Route element={<ProtectedRoute><PortalLayout /></ProtectedRoute>}>
             <Route path="/dashboard" element={<Dashboard />} />
@@ -61,8 +63,6 @@ function App() {
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/trips/:tripId" element={<AdminTripDetails />} />
           </Route>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
           <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
        </BrowserRouter>

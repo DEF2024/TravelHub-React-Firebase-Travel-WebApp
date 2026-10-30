@@ -5,6 +5,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   orderBy,
   query,
   serverTimestamp,
@@ -41,6 +42,28 @@ export async function listDestinations({ includeUnpublished = false } = {}) {
   }).sort((first, second) => first.name.localeCompare(second.name));
 }
 
+export function watchDestinations(callback, onError, { includeUnpublished = false } = {}) {
+  const destinationsQuery = includeUnpublished
+    ? query(collection(db, DESTINATIONS))
+    : query(collection(db, DESTINATIONS), where("published", "==", true));
+
+  return onSnapshot(destinationsQuery, (snapshot) => {
+    callback(snapshot.docs.map((destination) => {
+      const data = destination.data();
+      return {
+        id: destination.id,
+        ...data,
+        region: data.region ?? data.state ?? data.city ?? "",
+        categories: Array.isArray(data.categories) ? data.categories : data.category ? [data.category] : [],
+        imageUrl: data.imageUrl ?? data.image ?? "",
+        bestSeason: data.bestSeason ?? data.season ?? "",
+        accessibility: Array.isArray(data.accessibility) ? data.accessibility : [],
+        published: data.published === true,
+      };
+    }).sort((first, second) => text(first.name).localeCompare(text(second.name))));
+  }, onError);
+}
+
 export async function saveDestination(destination, destinationId) {
   const destinationData = {
     name: text(destination.name),
@@ -75,6 +98,14 @@ export async function deleteDestination(destinationId) {
 export async function listCategories() {
   const snapshot = await getDocs(query(collection(db, CATEGORIES), orderBy("name")));
   return snapshot.docs.map((category) => ({ id: category.id, ...category.data() }));
+}
+
+export function watchCategories(callback, onError) {
+  return onSnapshot(collection(db, CATEGORIES), (snapshot) => {
+    callback(snapshot.docs
+      .map((category) => ({ id: category.id, ...category.data() }))
+      .sort((first, second) => text(first.name).localeCompare(text(second.name))));
+  }, onError);
 }
 
 export async function saveCategory(name, categoryId) {

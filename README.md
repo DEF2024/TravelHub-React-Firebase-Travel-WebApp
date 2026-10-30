@@ -263,33 +263,34 @@ stored below `users/{uid}/savedDestinations/{destinationId}`.
 ## 🔐 Authentication Flow
 
 ```text
-Register as Student / Traveler
+Register and choose the requested platform role
    ↓
 Firebase Authentication
    ↓
-Create Firestore Profile (role: "student")
+Create Firestore Profile (role remains "student" until approved)
    ↓
-Sign in and choose platform role
-   ├── Student / Traveler ──→ Traveler Portal
-   ├── Faculty / Admin ─────→ CMS Portal (authorized staff only)
-   └── CMS Admin ───────────→ CMS Portal (authorized staff only)
+Sign in
+   ├── Firestore `role: "student"` ──→ Traveler Portal
+   └── Firestore `role: "admin"` ────→ Admin CMS Portal
 ```
 
-The role choice at sign-in selects the intended portal; it does not grant
-permissions. Student accounts are checked against their Firestore profile.
-Faculty/Admin and CMS Admin currently use the same `role: "admin"` profile and
-permissions. Admin profiles must be provisioned by an administrator. A role
-mismatch is rejected and the session is signed out.
+Platform-role selection is available only during registration. The selected
+value is saved in the Firestore profile as `platformRole` and `requestedRole`;
+it does not grant permissions. Student accounts keep `role: "student"`, while
+administrator accounts are set to `role: "admin"` only through a trusted
+Firebase administrator process. Sign-in routes exclusively from the approved
+Firestore profile, not from a client-selected login role.
 
 ---
 
 ## 🛡️ Security
 
 Firebase Security Rules should be used to control access to Firestore data.
-This project does not include Firebase rules or CLI deployment configuration.
-Configure and test production rules in the Firebase Console before enabling
-client-side writes. The UI's protected routes are not a replacement for database
-security rules.
+Configure and test the production rules in the Firebase Console. This project
+keeps Firebase configuration within `travelhub/src/firebase/firebaseConfig.js`
+and does not add deployment configuration outside the README-defined project
+structure. The UI's protected routes are not a replacement for database security
+rules.
 
 Example concept:
 
@@ -383,16 +384,21 @@ These are client-side Firebase settings; never put Firebase Admin SDK credential
 or service-account private keys in the frontend.
 
 New registrations automatically create a `users/{uid}` Firestore profile with
-`role: "student"`. Existing profiles with `role: "user"` continue to work as
-traveler accounts. Sign-in reads the signed-in user's profile, so Firestore rules
-must allow an authenticated user to read their own `users/{uid}` document.
+`role: "student"` and the registration choices `platformRole`, `requestedRole`,
+and `roleApproved`. Staff requests are recorded in Firestore but are not granted
+admin access by the browser. Existing profiles with `role: "user"` continue to
+work as traveler accounts. Sign-in reads only the approved Firestore profile,
+so Firestore rules must allow an authenticated user to read their own
+`users/{uid}` document.
 
 To grant the first Faculty/Admin or CMS Admin access:
 
 1. Register a normal account in the app.
 2. Find that account's UID in Firebase Authentication.
 3. In the Firestore console, create or update `users/{uid}` for that account and
-   set `role` to `admin` (also include its `name` and `email` fields).
+   set `role` to `admin`, set `roleApproved` to `true`, and also include its
+`name` and `email` fields. Do not change the `platformRole` request unless the
+account should be reassigned.
 4. Configure Firestore security rules to limit that profile update to a trusted
    administrator; never allow users to assign themselves the `admin` role.
 

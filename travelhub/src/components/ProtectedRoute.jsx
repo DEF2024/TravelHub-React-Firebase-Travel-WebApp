@@ -6,7 +6,7 @@ export default function ProtectedRoute({ children, adminOnly = false }) {
   const location = useLocation();
 
   if (loading) {
-    return <p className="route-status" role="status">Checking your account…</p>;
+    return <p className="route-status" role="status"><span className="loading-spinner" aria-hidden="true" /> Checking your account…</p>;
   }
 
   if (error) {

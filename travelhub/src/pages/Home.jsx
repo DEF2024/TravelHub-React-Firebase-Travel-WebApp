@@ -1,25 +1,48 @@
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import MyImage7 from "../assets/treeicon.png";
 import MyImage8 from "../assets/beachicon.png";
 import MyImage9 from "../assets/heritageicon.png";
 import MyImage10 from "../assets/adventureicon.png";
 import MyImage11 from "../assets/city-icon.png";
 import MyImage12 from "../assets/hill-icon.png";
+import YosemiteImage from "../assets/Islands.jpg";
+import KyotoImage from "../assets/Kalka.jpg";
+import ReefImage from "../assets/istockphoto.jpg";
+import BarcelonaImage from "../assets/Sonmarg.jpg";
 import * as THREE from "three";
 
 function Home() {
+  const navigate = useNavigate();
+  const [destinationSearch, setDestinationSearch] = useState("");
   useEffect(() => initializeGlobe(), []);
+
+  const searchDestinations = (event) => {
+    event.preventDefault();
+    const query = destinationSearch.trim();
+    navigate(query ? `/destinations?q=${encodeURIComponent(query)}` : "/destinations");
+  };
 
   return (
     <main className="wrapper">
     <section className="hero" id="home">
       <div className="hero-copy">
         <p className="eyebrow">ONE PLANET · ENDLESS DISCOVERIES</p>
-        <h1>Explore<br /><span>the World</span></h1>
-        <p className="intro">Travel across continents, discover green forests, follow glowing routes and explore our planet in a continuously rotating 3D globe.</p>
-        <a className="primary-button" href="#globeSection">Start exploring <span>→</span></a>
-        <div className="stats">
+        <h1>Destination<br /><span>at a Time</span></h1>
+        <p className="intro">Discover breathtaking destinations, plan memorable trips, and create your perfect travel itinerary—all in one place.</p>
+        <form className="home-destination-search" onSubmit={searchDestinations}>
+          <label className="visually-hidden" htmlFor="homeDestinationSearch">Search destinations</label>
+          <input
+            id="homeDestinationSearch"
+            type="search"
+            value={destinationSearch}
+            onChange={(event) => setDestinationSearch(event.target.value)}
+            placeholder="Search destinations"
+          />
+        </form>
+        <div className="home-hero-actions">
+          <Link className="primary-button" to="/destinations">Explore Destinations</Link>
+          <Link className="hero-secondary-button" to="/payment">Start Planning free</Link>
         </div>
       </div>
 
@@ -61,6 +84,47 @@ function Home() {
             <h1>100%</h1>
             <p>Safe & Verified</p>
         </div>
+    </section>
+
+    <section className="featured-accessible-section" aria-labelledby="featured-accessible-heading">
+      <div className="featured-accessible-heading">
+        <h2 id="featured-accessible-heading">Featured Accessible Destinations</h2>
+        <Link to="/destinations">Browse All (14) Destinations <span aria-hidden="true">→</span></Link>
+      </div>
+      <div className="featured-accessible-grid">
+        {[
+          { name: "Yosemite Valley & Vernal Falls", location: "Yosemite Village, California, USA", image: YosemiteImage, category: "Nature", description: "Iconic granite cliffs, roaring glacial waterfalls and peaceful valley trails.", rating: "4.9 (582)" },
+          { name: "Kyomizu-dera & Ancient Heritage", location: "Kyoto, Kyoto, Japan", image: KyotoImage, category: "Heritage", description: "A breathtaking UNESCO World Heritage Buddhist temple perched on Mount.", rating: "4.8 (612)" },
+          { name: "Great Barrier Reef Marine Life", location: "Cairns, Queensland, Australia", image: ReefImage, category: "Eco", description: "The world's largest coral reef ecosystem, Experience world-class citizen marine...", rating: "4.9 (290)" },
+          { name: "Barceloneta Beach", location: "Barcelona, Spain", image: BarcelonaImage, category: "Beaches", description: "Sun-drenched Mediterranean vibes meet centuries of Roman and Catalan culture.", rating: "4.8 (620)" },
+        ].map((destination) => (
+          <article className="featured-accessible-card" key={destination.name}>
+            <div className="featured-accessible-image">
+              <img src={destination.image} alt="" />
+              <span className="featured-accessible-badge">✦ Featured</span>
+              <span className={`featured-accessible-category featured-${destination.category.toLowerCase()}`}>{destination.category === "Eco" ? "♧ Eco" : destination.category}</span>
+              <button type="button" className="featured-accessible-favourite" aria-label={`Save ${destination.name}`}>♡</button>
+            </div>
+            <div className="featured-accessible-body">
+              <p className="featured-accessible-location">⌖ <span>{destination.location}</span></p>
+              <p className="featured-accessible-rating">★ <span>{destination.rating}</span></p>
+              <h3>{destination.name}</h3>
+              <p className="featured-accessible-description">{destination.description}</p>
+              <div className="featured-accessible-label">Accessibility Highlights</div>
+              <div className="featured-accessibility-symbols" aria-label="Accessibility supports">
+                <span title="Assistance / mobility support" aria-label="Assistance and mobility support">🚶</span>
+                <span title="Wheelchair accessibility" aria-label="Wheelchair accessibility">♿</span>
+                <span title="Accessible parking" aria-label="Accessible parking">🅿️</span>
+                <span title="Hearing accessibility" aria-label="Hearing accessibility">🦻</span>
+              </div>
+              <div className="featured-accessible-actions">
+                <Link to="/destinations">Explore Guide →</Link>
+                <Link to="/trips">＋ Add to Trip</Link>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
     </section>
 
     <section className="home-3">

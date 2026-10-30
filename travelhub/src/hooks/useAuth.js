@@ -2,6 +2,7 @@ import { createContext, createElement, useContext, useEffect, useMemo, useState 
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "../firebase/firebaseConfig";
+import { ensureUserProfile } from "../services/authService";
 
 const AuthContext = createContext(null);
 
@@ -13,9 +14,11 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     let unsubscribeProfile = null;
+    let profileTimeout = null;
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       unsubscribeProfile?.();
       unsubscribeProfile = null;
+      window.clearTimeout(profileTimeout);
       setLoading(true);
       setError("");
       setUser(currentUser);
@@ -29,21 +32,57 @@ export function AuthProvider({ children }) {
       unsubscribeProfile = onSnapshot(
         doc(db, "users", currentUser.uid),
         (snapshot) => {
-          setProfile(snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null);
+          window.clearTimeout(profileTimeout);
+          if (snapshot.exists()) {
+            setProfile({ id: snapshot.id, ...snapshot.data() });
+            setLoading(false);
+            setError("");
+            return;
+          }
+
+          const fallbackProfile = {
+            id: currentUser.uid,
+            name: currentUser.displayName ?? currentUser.email?.split("@")[0] ?? "Traveler",
+            email: currentUser.email ?? "",
+            photoURL: currentUser.photoURL ?? "",
+            role: "student",
+          };
+          setProfile(fallbackProfile);
           setLoading(false);
-          setError("");
+          ensureUserProfile(currentUser).catch((profileError) => {
+            console.warn("Unable to repair the missing account profile document.", profileError);
+          });
         },
         (profileError) => {
+          window.clearTimeout(profileTimeout);
           console.error("Unable to load the signed-in user's profile.", profileError);
-          setError("Unable to load your account profile. Check your Firestore rules and connection.");
+          setProfile({
+            id: currentUser.uid,
+            name: currentUser.displayName ?? currentUser.email?.split("@")[0] ?? "Traveler",
+            email: currentUser.email ?? "",
+            photoURL: currentUser.photoURL ?? "",
+            role: "student",
+          });
+          setError("");
           setLoading(false);
         },
       );
+      profileTimeout = window.setTimeout(() => {
+        setProfile((currentProfile) => currentProfile ?? {
+          id: currentUser.uid,
+          name: currentUser.displayName ?? currentUser.email?.split("@")[0] ?? "Traveler",
+          email: currentUser.email ?? "",
+          photoURL: currentUser.photoURL ?? "",
+          role: "student",
+        });
+        setLoading(false);
+      }, 8000);
     });
 
     return () => {
       unsubscribeAuth();
       unsubscribeProfile?.();
+      window.clearTimeout(profileTimeout);
     };
   }, []);
 

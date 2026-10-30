@@ -20,6 +20,7 @@ export default function AdminTripsUsers() {
   const [activeTab, setActiveTab] = useState("trips");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [userQuery, setUserQuery] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -50,6 +51,9 @@ export default function AdminTripsUsers() {
 
   const userById = new Map(users.map((user) => [user.id, user]));
   const today = new Date().toISOString().slice(0, 10);
+  const visibleUsers = users.filter((user) => `${user.name ?? ""} ${user.email ?? ""} ${user.university ?? ""}`
+    .toLocaleLowerCase()
+    .includes(userQuery.trim().toLocaleLowerCase()));
 
   return (
     <main className="portal-page admin-portal-page">
@@ -74,7 +78,8 @@ export default function AdminTripsUsers() {
         </section>
       )}
 
-      <div className="portal-tabs" role="tablist" aria-label="Admin account overview">
+      <div className="admin-overview-toolbar">
+        <div className="portal-tabs" role="tablist" aria-label="Admin account overview">
         <button
           type="button"
           role="tab"
@@ -97,6 +102,13 @@ export default function AdminTripsUsers() {
         >
           <span aria-hidden="true">♧</span> Registered Users ({counts?.users ?? "…"})
         </button>
+        </div>
+        {activeTab === "users" && (
+          <label className="admin-user-search">
+            <span aria-hidden="true">⌕</span>
+            <input value={userQuery} onChange={(event) => setUserQuery(event.target.value)} placeholder="Search users" />
+          </label>
+        )}
       </div>
 
       <section
@@ -148,13 +160,13 @@ export default function AdminTripsUsers() {
             {!loading && users.length > 0 && (
               <div className="portal-table-scroll">
                 <table className="portal-table">
-                  <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Account ID</th></tr></thead>
+                  <thead><tr><th>User</th><th>Email</th><th>University</th><th>Role</th></tr></thead>
                   <tbody>
-                    {users.map((user) => (
+                    {visibleUsers.map((user) => (
                       <tr key={user.id}>
                         <td>{user.name || "—"}</td><td>{user.email || "—"}</td>
+                        <td>{user.university || "—"}</td>
                         <td><span className="portal-status">{user.role || "user"}</span></td>
-                        <td><code>{user.id}</code></td>
                       </tr>
                     ))}
                   </tbody>

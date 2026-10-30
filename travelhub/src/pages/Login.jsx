@@ -1,18 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
-import { getUserProfile } from '../services/authService';
-
-const requestedPathIsAdmin = (location) => location.state?.from?.pathname?.startsWith('/admin');
+import { ensureUserProfile } from '../services/authService';
 
 const Login = () => {
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [platformRole, setPlatformRole] = useState(() => (
-    requestedPathIsAdmin(location) ? 'cms-admin' : 'student'
-  ));
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,18 +22,24 @@ const Login = () => {
     try {
       const { user } = await signInWithEmailAndPassword(auth, email, password);
       signedInUid = user.uid;
-      const profile = await getUserProfile(user.uid);
-      const selectedAdminPortal = platformRole !== 'student';
+      let profile;
+      try {
+        profile = await ensureUserProfile(user);
+      } catch (profileError) {
+        if (profileError.code === 'unavailable' || profileError.code === 'not-found' || profileError.code === 'failed-precondition') {
+          signedInUid = null;
+          setError(profileError.code === 'not-found'
+            ? 'Firestore has not been created for this Firebase project yet.'
+            : 'Signed in successfully, but your profile could not be loaded. Check your Firestore connection.');
+          return;
+        }
+        throw profileError;
+      }
       const accountIsAdmin = profile?.role === 'admin';
 
-      if (!profile || selectedAdminPortal !== accountIsAdmin) {
-        await signOut(auth);
+      if (!profile) {
         signedInUid = null;
-        setError(!profile
-          ? 'Your account profile could not be found. Please contact an administrator.'
-          : selectedAdminPortal
-            ? 'This account is not authorized for the selected staff portal. Choose Student / Traveler or use an authorized admin account.'
-            : 'This account is assigned to an admin portal. Select Faculty / Admin or CMS Admin to continue.');
+        setError('Your account profile could not be found. Please contact an administrator.');
         return;
       }
 
@@ -47,15 +48,21 @@ const Login = () => {
       const canReturnToRequestedPath = requestedPath
         && requestedPath !== '/login'
         && requestedPath !== '/register'
-        && requestedPathIsAdminPortal === selectedAdminPortal;
-      navigate(canReturnToRequestedPath ? requestedPath : selectedAdminPortal ? '/admin' : '/dashboard', { replace: true });
+        && (!requestedPathIsAdminPortal || accountIsAdmin);
+      navigate(canReturnToRequestedPath ? requestedPath : accountIsAdmin ? '/admin' : '/dashboard', { replace: true });
     } catch (authError) {
       if (signedInUid && auth.currentUser?.uid === signedInUid) {
-        try {
-          await signOut(auth);
-        } catch (signOutError) {
-          console.error('Unable to sign out after role verification failed.', signOutError);
-        }
+        const message = authError.code === 'permission-denied'
+          ? 'Signed in successfully, but Firestore denied access to your profile. Check the Firestore security rules for the signed-in user.'
+          : authError.code === 'unavailable'
+            ? 'Signed in successfully, but Firestore is unavailable. Check your internet connection and Firebase project status.'
+          : authError.code === 'not-found'
+            ? 'Signed in successfully, but the default Firestore database has not been created for this Firebase project.'
+            : 'Signed in successfully, but your account profile could not be loaded. Check the Firestore connection and refresh this page.';
+        console.error('Unable to verify the signed-in account profile.', authError);
+        setError(message);
+        setIsSubmitting(false);
+        return;
       }
       setError(authError.code === 'auth/invalid-credential'
         ? 'Email or password is incorrect.'
@@ -91,43 +98,6 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
           {error && <p role="alert">{error}</p>}
 
-          <fieldset className="login-role-picker">
-            <legend>Choose your platform role</legend>
-            <label className={platformRole === 'student' ? 'is-selected' : ''}>
-              <input
-                type="radio"
-                name="platformRole"
-                value="student"
-                checked={platformRole === 'student'}
-                onChange={(event) => setPlatformRole(event.target.value)}
-              />
-              <span><strong>Student / Traveler</strong><small>Plan trips and manage your itinerary</small></span>
-            </label>
-            <label className={platformRole === 'faculty-admin' ? 'is-selected' : ''}>
-              <input
-                type="radio"
-                name="platformRole"
-                value="faculty-admin"
-                checked={platformRole === 'faculty-admin'}
-                onChange={(event) => setPlatformRole(event.target.value)}
-              />
-              <span><strong>Faculty / Admin</strong><small>Staff access to CMS and trip reviews</small></span>
-            </label>
-            <label className={platformRole === 'cms-admin' ? 'is-selected' : ''}>
-              <input
-                type="radio"
-                name="platformRole"
-                value="cms-admin"
-                checked={platformRole === 'cms-admin'}
-                onChange={(event) => setPlatformRole(event.target.value)}
-              />
-              <span><strong>CMS Admin</strong><small>Manage destinations and TravelHub content</small></span>
-            </label>
-            {platformRole !== 'student' && (
-              <p className="login-role-note">Staff access is verified against your existing account role. Choosing an option here does not grant admin permissions.</p>
-            )}
-          </fieldset>
-          
           <div className="input-group">
             <label htmlFor="email">Email Address</label>
             <div className="input-wrapper">
@@ -175,12 +145,14 @@ const Login = () => {
             </div>
           </div>
 
-          <button type="submit" className="login-submit-btn" disabled={isSubmitting}>
-            <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-              <polyline points="10 17 15 12 10 7"></polyline>
-              <line x1="15" y1="12" x2="3" y2="12"></line>
-            </svg>
+          <button type="submit" className="login-submit-btn" disabled={isSubmitting} aria-busy={isSubmitting}>
+            {isSubmitting ? <span className="loading-spinner" aria-hidden="true" /> : (
+              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                <polyline points="10 17 15 12 10 7"></polyline>
+                <line x1="15" y1="12" x2="3" y2="12"></line>
+              </svg>
+            )}
             {isSubmitting ? 'Signing In...' : 'Sign In'}
           </button>
         </form>

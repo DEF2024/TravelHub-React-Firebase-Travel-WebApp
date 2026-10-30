@@ -85,19 +85,25 @@ export default function Trips() {
     event.preventDefault();
     setError("");
 
+    const pendingDestination = additionalDestination.trim();
+    const destinationNames = pendingDestination && !form.destinationNames.includes(pendingDestination)
+      ? [...form.destinationNames, pendingDestination]
+      : form.destinationNames;
+    const tripForm = { ...form, destinationNames };
+
     if (form.endDate < form.startDate) {
       setError("The end date must be on or after the start date.");
       return;
     }
-    if (form.destinationNames.length === 0) {
+    if (destinationNames.length === 0) {
       setError("Choose or add at least one destination.");
       return;
     }
 
     setSaving(true);
     try {
-      if (editingId) await updateTrip(editingId, form);
-      else await createTrip(user.uid, form);
+      if (editingId) await updateTrip(editingId, tripForm);
+      else await createTrip(user.uid, tripForm);
       resetForm();
       await refresh();
     } catch (saveError) {
@@ -181,6 +187,12 @@ export default function Trips() {
               <input
                 value={additionalDestination}
                 onChange={(event) => setAdditionalDestination(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    addManualDestination();
+                  }
+                }}
                 placeholder="Add another destination"
                 aria-label="Add another destination"
               />

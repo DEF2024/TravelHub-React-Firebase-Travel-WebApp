@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import {
   deleteCategory,
   deleteDestination,
-  listCategories,
-  listDestinations,
   renameCategory,
   saveCategory,
   saveDestination,
+  watchCategories,
+  watchDestinations,
 } from "../../services/destinationService";
 
 const accessibilityOptions = [
@@ -42,23 +42,28 @@ export default function DestinationsCMS() {
 
   const refresh = async () => {
     setError("");
-    try {
-      const [destinationResults, categoryResults] = await Promise.all([
-        listDestinations({ includeUnpublished: true }),
-        listCategories(),
-      ]);
-      setItems(destinationResults);
-      setCategories(categoryResults);
-    } catch (loadError) {
-      console.error("Unable to load CMS data.", loadError);
-      setError("Unable to load destinations and categories. Check your admin account and Firestore rules.");
-    } finally {
-      setLoading(false);
-    }
   };
 
   useEffect(() => {
-    refresh();
+    const unsubscribeDestinations = watchDestinations((destinationResults) => {
+      setItems(destinationResults);
+      setLoading(false);
+    }, (loadError) => {
+      console.error("Unable to watch CMS destinations.", loadError);
+      setError("Unable to load destinations. Check your admin account and Firestore rules.");
+      setLoading(false);
+    }, { includeUnpublished: true });
+    const unsubscribeCategories = watchCategories((categoryResults) => {
+      setCategories(categoryResults);
+    }, (loadError) => {
+      console.error("Unable to watch CMS categories.", loadError);
+      setError("Unable to load categories. Check your admin account and Firestore rules.");
+    });
+
+    return () => {
+      unsubscribeDestinations();
+      unsubscribeCategories();
+    };
   }, []);
 
   const visible = useMemo(() => {
@@ -239,31 +244,52 @@ export default function DestinationsCMS() {
 
         {loading && <p role="status">Loading destinations…</p>}
         {!loading && (
-          <div className="cms-grid">
-            {visible.map((destination) => (
-              <article key={destination.id} className="cms-card">
-                <div className="cms-card-header">
-                  <div>
-                    <h2>{destination.name}</h2>
-                    <p className="cms-card-meta">{destination.region} · {(destination.categories ?? []).join(", ")}</p>
-                  </div>
-                  <span className={`cms-status${destination.published ? " is-published" : ""}`}>{destination.published ? "Published" : "Draft"}</span>
-                </div>
-                <p className="cms-description">{destination.description}</p>
-                {destination.bestSeason && <p className="cms-season">Best time: {destination.bestSeason}</p>}
-                {destination.featured && <p className="cms-season">Featured destination</p>}
-                <div className="cms-accessibility-preview">
-                  {(destination.accessibility ?? []).map((featureId) => (
-                    <span key={featureId}>{accessibilityOptions.find(([id]) => id === featureId)?.[1] ?? featureId}</span>
-                  ))}
-                </div>
-                <div className="cms-actions">
-                  <button type="button" onClick={() => openEdit(destination)} className="cms-ghost-button">Edit</button>
-                  <button type="button" onClick={() => togglePublish(destination)} className="cms-ghost-button">{destination.published ? "Unpublish" : "Publish"}</button>
-                  <button type="button" onClick={() => removeDestination(destination)} className="cms-ghost-button cms-delete-button">Delete</button>
-                </div>
-              </article>
-            ))}
+          <div className="cms-table-wrap">
+            <table className="cms-table">
+              <thead>
+                <tr>
+                  <th>Destination</th><th>Category</th><th>State &amp; City</th><th>Accessibility</th><th>Featured</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visible.map((destination) => (
+                  <tr key={destination.id}>
+                    <td>
+                      <div className="cms-destination-name">
+                        {destination.imageUrl
+                          ? <img src={destination.imageUrl} alt="" />
+                          : <span className="cms-destination-placeholder" aria-hidden="true">⌖</span>}
+                        <div><strong>{destination.name}</strong><small>{destination.published ? "Published" : "Draft"}</small></div>
+                      </div>
+                    </td>
+                    <td><span className="cms-category-pill">{destination.categories?.[0] || "Uncategorized"}</span></td>
+                    <td>{destination.region || "—"}</td>
+                    <td>
+                      <div className="cms-accessibility-preview">
+                        {(destination.accessibility ?? []).slice(0, 3).map((featureId) => (
+                          <span key={featureId}>{accessibilityOptions.find(([id]) => id === featureId)?.[1] ?? featureId}</span>
+                        ))}
+                      </div>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className={`cms-featured-toggle${destination.featured ? " is-featured" : ""}`}
+                        onClick={() => saveDestination({ ...destination, featured: !destination.featured }, destination.id).then(refresh).catch(() => setError("Unable to update featured status."))}
+                        aria-label={`${destination.featured ? "Remove" : "Add"} ${destination.name} featured status`}
+                      >★</button>
+                    </td>
+                    <td>
+                      <div className="cms-actions">
+                        <button type="button" onClick={() => togglePublish(destination)} className="cms-table-action" aria-label={`${destination.published ? "Unpublish" : "Publish"} ${destination.name}`}>{destination.published ? "◉" : "○"}</button>
+                        <button type="button" onClick={() => openEdit(destination)} className="cms-table-action" aria-label={`Edit ${destination.name}`}>Edit</button>
+                        <button type="button" onClick={() => removeDestination(destination)} className="cms-table-action cms-delete-button" aria-label={`Delete ${destination.name}`}>Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
             {!visible.length && <p className="cms-empty">{items.length ? "No destinations match your search." : "No destinations yet. Add your first destination."}</p>}
           </div>
         )}

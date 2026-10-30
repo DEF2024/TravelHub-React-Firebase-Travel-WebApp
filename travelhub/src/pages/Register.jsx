@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword, deleteUser, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
 import { createUserProfile } from '../services/authService';
 
 const Register = () => {
   const [name, setName] = useState('');
+  const [university, setUniversity] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [platformRole, setPlatformRole] = useState('student');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -27,29 +29,32 @@ const Register = () => {
       const { user } = await createUserWithEmailAndPassword(auth, email, password);
       try {
         await updateProfile(user, { displayName: name.trim() });
-        await createUserProfile(user, name.trim());
+        await createUserProfile(user, name.trim(), platformRole, university);
       } catch (profileError) {
-        try {
-          await deleteUser(user);
-        } catch (cleanupError) {
-          console.error('Unable to remove the new auth user after profile creation failed.', cleanupError);
-        }
+        console.error('Firebase Authentication succeeded, but Firestore profile creation failed.', profileError);
         throw profileError;
       }
-      navigate('/dashboard', { replace: true });
+      navigate(platformRole === 'cms-admin' ? '/admin' : '/dashboard', { replace: true });
     } catch (authError) {
-      setError(authError.code === 'auth/email-already-in-use'
+      const message = authError.code === 'auth/email-already-in-use'
         ? 'An account with this email already exists.'
         : authError.code === 'auth/weak-password'
           ? 'Choose a stronger password.'
-          : 'Unable to create your account. Please try again.');
+          : authError.code === 'permission-denied'
+            ? 'Your account was created in Firebase Authentication, but Firestore denied the profile. The deployed rules must allow a new user to create users/{uid} and CMS Admin profiles.'
+            : authError.code === 'not-found'
+              ? 'Firebase Authentication is ready, but the default Firestore database is unavailable or has not been created.'
+              : authError.code === 'unavailable'
+                ? 'Firebase is unavailable. Check your internet connection and try again.'
+                : `Unable to create the account profile: ${authError.code || authError.message || 'Unknown Firebase error'}`;
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="login-wrapper">
+    <div className="login-wrapper login-role-login">
 
       <div className="login-header">
         <div className="brand-logo">
@@ -69,6 +74,33 @@ const Register = () => {
       <div className="login-box">
         <form onSubmit={handleSubmit}>
           {error && <p role="alert">{error}</p>}
+
+          <fieldset className="login-role-picker">
+            <legend>Choose your platform role</legend>
+            <label className={platformRole === 'student' ? 'is-selected' : ''}>
+              <input
+                type="radio"
+                name="platformRole"
+                value="student"
+                checked={platformRole === 'student'}
+                onChange={(event) => setPlatformRole(event.target.value)}
+              />
+              <span><strong>Student / Traveler</strong><small>Plan trips and manage your itinerary</small></span>
+            </label>
+            <label className={platformRole === 'cms-admin' ? 'is-selected' : ''}>
+              <input
+                type="radio"
+                name="platformRole"
+                value="cms-admin"
+                checked={platformRole === 'cms-admin'}
+                onChange={(event) => setPlatformRole(event.target.value)}
+              />
+              <span><strong>CMS Admin</strong><small>Manage destinations and TravelHub content</small></span>
+            </label>
+            {platformRole === 'cms-admin' && (
+              <p className="login-role-note">This account will be created with CMS administrator portal access.</p>
+            )}
+          </fieldset>
           
           {/* Full Name Input */}
           <div className="input-group">
@@ -84,6 +116,20 @@ const Register = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your full name"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="input-group">
+            <label htmlFor="university">University / Institution</label>
+            <div className="input-wrapper">
+              <input
+                type="text"
+                id="university"
+                value={university}
+                onChange={(e) => setUniversity(e.target.value)}
+                placeholder="Your university or institution"
                 required
               />
             </div>
@@ -156,13 +202,15 @@ const Register = () => {
             </div>
           </div>
 
-          <button type="submit" className="login-submit-btn" disabled={isSubmitting}>
-            <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="8.5" cy="7" r="4"></circle>
-              <line x1="20" y1="8" x2="20" y2="14"></line>
-              <line x1="23" y1="11" x2="17" y2="11"></line>
-            </svg>
+          <button type="submit" className="login-submit-btn" disabled={isSubmitting} aria-busy={isSubmitting}>
+            {isSubmitting ? <span className="loading-spinner" aria-hidden="true" /> : (
+              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+              </svg>
+            )}
             {isSubmitting ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
