@@ -12,19 +12,35 @@ export default function Dashboard() {
 
   useEffect(() => {
     let active = true;
-    Promise.all([listUserTrips(user.uid), listSavedDestinations(user.uid)])
-      .then(([tripResults, savedResults]) => {
-        if (!active) return;
-        setTrips(tripResults);
-        setSavedCount(savedResults.length);
-      })
-      .catch((loadError) => {
-        console.error("Unable to load traveler dashboard.", loadError);
-        if (active) setError("Unable to load your travel overview. Check your Firestore rules and connection.");
-      })
-      .finally(() => {
+    async function loadDashboard() {
+      let tripsLoaded = false;
+      try {
+        const tripResults = await listUserTrips(user.uid);
+        if (active) setTrips(tripResults);
+        tripsLoaded = true;
+      } catch (loadError) {
+        console.error("Unable to load trips for traveler dashboard.", loadError);
+        if (active) setError(loadError.code === "permission-denied"
+          ? "Your trip data is blocked by the Firestore rules. Sign in again or ask the project admin to deploy the latest rules."
+          : "Unable to load your trips. Check your Firestore connection.");
+      }
+
+      try {
+        const savedResults = await listSavedDestinations(user.uid);
+        if (active) setSavedCount(savedResults.length);
+      } catch (loadError) {
+        console.error("Unable to load saved destinations for traveler dashboard.", loadError);
+        if (active && tripsLoaded) {
+          setError(loadError.code === "permission-denied"
+            ? "Your saved destinations are blocked by the Firestore rules. Trip data is still available."
+            : "Trip data loaded, but saved destinations could not be loaded.");
+        }
+      } finally {
         if (active) setLoading(false);
-      });
+      }
+    }
+
+    loadDashboard();
     return () => { active = false; };
   }, [user.uid]);
 

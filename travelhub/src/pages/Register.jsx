@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
 import { createUserProfile } from '../services/authService';
+import travelHubLogo from '../assets/travelhub-logo.svg';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -34,7 +35,7 @@ const Register = () => {
         console.error('Firebase Authentication succeeded, but Firestore profile creation failed.', profileError);
         throw profileError;
       }
-      navigate(platformRole === 'cms-admin' ? '/admin' : '/dashboard', { replace: true });
+      navigate(platformRole === 'cms-admin' || platformRole === 'faculty' ? '/admin' : '/dashboard', { replace: true });
     } catch (authError) {
       const message = authError.code === 'auth/email-already-in-use'
         ? 'An account with this email already exists.'
@@ -58,14 +59,7 @@ const Register = () => {
 
       <div className="login-header">
         <div className="brand-logo">
-          <div className="logo-circle">
-            <svg className="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="2" y1="12" x2="22" y2="12"></line>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-            </svg>
-          </div>
-          <span className="brand-name">TravelHub</span>
+          <img className="travelhub-logo travelhub-logo-auth" src={travelHubLogo} alt="TravelHub" />
         </div>
         <h1>Create Account</h1>
         <p>Start your journey — it's completely free</p>
@@ -75,34 +69,6 @@ const Register = () => {
         <form onSubmit={handleSubmit}>
           {error && <p role="alert">{error}</p>}
 
-          <fieldset className="login-role-picker">
-            <legend>Choose your platform role</legend>
-            <label className={platformRole === 'student' ? 'is-selected' : ''}>
-              <input
-                type="radio"
-                name="platformRole"
-                value="student"
-                checked={platformRole === 'student'}
-                onChange={(event) => setPlatformRole(event.target.value)}
-              />
-              <span><strong>Student / Traveler</strong><small>Plan trips and manage your itinerary</small></span>
-            </label>
-            <label className={platformRole === 'cms-admin' ? 'is-selected' : ''}>
-              <input
-                type="radio"
-                name="platformRole"
-                value="cms-admin"
-                checked={platformRole === 'cms-admin'}
-                onChange={(event) => setPlatformRole(event.target.value)}
-              />
-              <span><strong>CMS Admin</strong><small>Manage destinations and TravelHub content</small></span>
-            </label>
-            {platformRole === 'cms-admin' && (
-              <p className="login-role-note">This account will be created with CMS administrator portal access.</p>
-            )}
-          </fieldset>
-          
-          {/* Full Name Input */}
           <div className="input-group">
             <label htmlFor="name">Full Name</label>
             <div className="input-wrapper">
@@ -116,20 +82,6 @@ const Register = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your full name"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="input-group">
-            <label htmlFor="university">University / Institution</label>
-            <div className="input-wrapper">
-              <input
-                type="text"
-                id="university"
-                value={university}
-                onChange={(e) => setUniversity(e.target.value)}
-                placeholder="Your university or institution"
                 required
               />
             </div>
@@ -152,53 +104,92 @@ const Register = () => {
               />
             </div>
           </div>
-          
 
-          <div className="input-group">
-            <label htmlFor="password">Password</label>
-            <div className="input-wrapper">
-              <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-              </svg>
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Min. 6 characters"
-                minLength="6"
-                required
-              />
-              <button 
-                type="button" 
-                className="toggle-password" 
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label="Toggle password visibility"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
+          <div className="login-form-row">
+            <div className="input-group">
+              <label htmlFor="password">Password</label>
+              <div className="input-wrapper">
+                <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
-              </button>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Min. 6 characters"
+                  minLength="6"
+                  required
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label="Toggle password visibility"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="input-group">
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              <div className="input-wrapper">
+                <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Repeat password"
+                  required
+                />
+              </div>
             </div>
           </div>
 
-          <div className="input-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <div className="input-wrapper">
-              <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-              </svg>
-              <input
-                type={showPassword ? "text" : "password"}
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Repeat password"
-                required
-              />
+          <div className="login-form-row">
+            <fieldset className="login-role-picker">
+              <legend>Platform Role</legend>
+              <div className="input-wrapper role-select-wrapper">
+                <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <circle cx="12" cy="8" r="4"></circle>
+                  <path d="M4 21v-2a8 8 0 0 1 16 0v2"></path>
+                </svg>
+                <select
+                  value={platformRole}
+                  onChange={(event) => setPlatformRole(event.target.value)}
+                  aria-label="Platform role"
+                >
+                  <option value="student">Student / Traveler</option>
+                  <option value="faculty">Faculty</option>
+                  <option value="cms-admin">CMS Admin</option>
+                </select>
+                <svg className="role-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </fieldset>
+
+            <div className="input-group">
+              <label htmlFor="university">University / Institution</label>
+              <div className="input-wrapper">
+                <input
+                  type="text"
+                  id="university"
+                  value={university}
+                  onChange={(e) => setUniversity(e.target.value)}
+                  placeholder="Your university or institution"
+                  required
+                />
+              </div>
             </div>
           </div>
 

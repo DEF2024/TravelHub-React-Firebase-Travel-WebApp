@@ -11,11 +11,33 @@ import KyotoImage from "../assets/Kalka.jpg";
 import ReefImage from "../assets/istockphoto.jpg";
 import BarcelonaImage from "../assets/Sonmarg.jpg";
 import * as THREE from "three";
+import { watchDestinations } from "../services/destinationService";
+import { listUsers } from "../services/authService";
 
 function Home() {
   const navigate = useNavigate();
   const [destinationSearch, setDestinationSearch] = useState("");
+  const [homeStats, setHomeStats] = useState({ destinations: 0, travelers: 0, regions: 0 });
   useEffect(() => initializeGlobe(), []);
+  useEffect(() => {
+    let active = true;
+    const unsubscribe = watchDestinations((destinations) => {
+      if (!active) return;
+      const regions = new Set(destinations.map((destination) => destination.region?.trim()).filter(Boolean));
+      setHomeStats((current) => ({ ...current, destinations: destinations.length, regions: regions.size }));
+    }, (loadError) => console.error("Unable to load destination statistics.", loadError));
+
+    listUsers()
+      .then((users) => {
+        if (active) setHomeStats((current) => ({ ...current, travelers: users.length }));
+      })
+      .catch((loadError) => console.error("Unable to load traveler statistics.", loadError));
+
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, []);
 
   const searchDestinations = (event) => {
     event.preventDefault();
@@ -66,17 +88,17 @@ function Home() {
     <section className="home-1">
         <div className="home-1-content">
             <svg xmlns="http://www.w3.org/2000/svg" height="54px" viewBox="0 -960 960 960" width="54px" fill="#000000"><path d="m300-300 280-80 80-280-280 80-80 280Zm180-120q-25 0-42.5-17.5T420-480q0-25 17.5-42.5T480-540q25 0 42.5 17.5T540-480q0 25-17.5 42.5T480-420Zm0 340q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q133 0 226.5-93.5T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160Zm0-320Z"/></svg>
-            <h1>500+</h1>
+            <h1>{homeStats.destinations}</h1>
             <p>Destinations</p> 
         </div>
         <div className="home-1-content">
           <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#000000"><path d="M38-160v-94q0-35 18-63.5t50-42.5q73-32 131.5-46T358-420q62 0 120 14t131 46q32 14 50.5 42.5T678-254v94H38Zm700 0v-94q0-63-32-103.5T622-423q69 8 130 23.5t99 35.5q33 19 52 47t19 63v94H738ZM250-523q-42-42-42-108t42-108q42-42 108-42t108 42q42 42 42 108t-42 108q-42 42-108 42t-108-42Zm426 0q-42 42-108 42-11 0-24.5-1.5T519-488q24-25 36.5-61.5T568-631q0-45-12.5-79.5T519-774q11-3 24.5-5t24.5-2q66 0 108 42t42 108q0 66-42 108ZM98-220h520v-34q0-16-9.5-31T585-306q-72-32-121-43t-106-11q-57 0-106.5 11T130-306q-14 6-23 21t-9 31v34Zm324.5-346.5Q448-592 448-631t-25.5-64.5Q397-721 358-721t-64.5 25.5Q268-670 268-631t25.5 64.5Q319-541 358-541t64.5-25.5ZM358-220Zm0-411Z"/></svg>
-            <h1>10K+</h1>
+            <h1>{homeStats.travelers}</h1>
             <p>Happy Travelers</p>
         </div>
         <div className="home-1-content">
             <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#000000"><path d="m612-120-263-93-179 71q-17 9-33.5-1T120-173v-558q0-13 7.5-23t19.5-15l202-71 263 92 178-71q17-8 33.5 1.5T840-788v565q0 11-7.5 19T814-192l-202 72Zm-34-75v-505l-196-66v505l196 66Zm60 0 142-47v-512l-142 54v505Zm-458-12 142-54v-505l-142 47v512Zm458-493v505-505Zm-316-66v505-505Z"/></svg>           
-            <h1>28+</h1>
+            <h1>{homeStats.regions}</h1>
             <p>States Covered</p>
         </div>
         <div className="home-1-content">

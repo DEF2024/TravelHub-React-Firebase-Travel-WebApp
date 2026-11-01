@@ -47,9 +47,9 @@ function App() {
             <Route path="/destinations" element={<Destinations />} />
             <Route path="/DestinationCard" element={<Navigate to="/destinations" replace />} />
             <Route path="/payment" element={<Payment />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
           </Route>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route element={<ProtectedRoute><PortalLayout /></ProtectedRoute>}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />

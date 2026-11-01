@@ -2,9 +2,9 @@ import { doc, getDoc, getDocs, orderBy, query, serverTimestamp, setDoc, collecti
 import { db } from "../firebase/firebaseConfig";
 
 export async function createUserProfile(user, name, platformRole = "student", university = "") {
-  const validStaffRoles = ["cms-admin"];
+  const validStaffRoles = ["cms-admin", "faculty"];
   const requestedRole = validStaffRoles.includes(platformRole) ? platformRole : "student";
-  const isAdmin = requestedRole === "cms-admin";
+  const isAdmin = requestedRole === "cms-admin" || requestedRole === "faculty";
   await setDoc(doc(db, "users", user.uid), {
     name: name ?? user.displayName ?? user.email?.split("@")[0] ?? "Traveler",
     email: user.email ?? "",

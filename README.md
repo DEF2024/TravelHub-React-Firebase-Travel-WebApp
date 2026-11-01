@@ -11,6 +11,7 @@ TravelHub allows users to explore destinations, create travel plans, manage itin
 ### 🌎 Travel Discovery
 
 * Explore travel destinations
+
 * Destination details
 * Search destinations
 * Category filtering

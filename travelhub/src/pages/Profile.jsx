@@ -3,6 +3,11 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { listSavedDestinations, setDestinationSaved } from "../services/destinationService";
 
+const getRandomDestinationPrice = (destinationId = "") => {
+  const seed = [...String(destinationId)].reduce((total, character) => total + character.charCodeAt(0), 0);
+  return Math.round((seed % 24001 + 2000) / 100) * 100;
+};
+
 export default function Profile() {
   const { user, profile } = useAuth();
   const [saved, setSaved] = useState([]);
@@ -59,6 +64,20 @@ export default function Profile() {
                 <h3>{destination.name}</h3>
                 <p>{destination.region}</p>
               </div>
+              <Link
+                to="/payment"
+                state={{
+                  title: `${destination.name} travel plan`,
+                  destination: `${destination.name}, ${destination.region}`,
+                  duration: "7 days",
+                  travelers: 1,
+                  price: getRandomDestinationPrice(destination.id),
+                }}
+                className="saved-destination-price-button"
+                aria-label={`Start planning ${destination.name} for ₹${getRandomDestinationPrice(destination.id).toLocaleString("en-IN")}`}
+              >
+                ₹{getRandomDestinationPrice(destination.id).toLocaleString("en-IN")}
+              </Link>
               <button type="button" className="planner-danger-button" onClick={() => removeSaved(destination)}>Remove</button>
             </article>
           ))}

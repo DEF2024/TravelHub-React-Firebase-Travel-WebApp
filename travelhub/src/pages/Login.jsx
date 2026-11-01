@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
 import { ensureUserProfile } from '../services/authService';
+import travelHubLogo from '../assets/travelhub-logo.svg';
 
 const Login = () => {
   const location = useLocation();
@@ -80,14 +81,7 @@ const Login = () => {
       {/* Header Section */}
       <div className="login-header">
         <div className="brand-logo">
-          <div className="logo-circle">
-            <svg className="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="2" y1="12" x2="22" y2="12"></line>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-            </svg>
-          </div>
-          <span className="brand-name">TravelHub</span>
+          <img className="travelhub-logo travelhub-logo-auth" src={travelHubLogo} alt="TravelHub" />
         </div>
         <h1>Welcome Back</h1>
         <p>Sign in to continue planning your adventures</p>

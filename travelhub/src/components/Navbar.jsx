@@ -4,6 +4,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase/firebaseConfig";
 import { useAuth } from "../hooks/useAuth";
 import "../App.css";
+import travelHubLogo from "../assets/travelhub-logo.svg";
 
 
 function Navbar() {
@@ -34,12 +35,7 @@ function Navbar() {
     <>
     <nav className={`wrapper app-nav${menuIsOpen ? " app-nav-active" : ""}`}>
       <div className="brand-logo">
-        <svg className="globe-icon" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="2" y1="12" x2="22" y2="12"></line>
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-        </svg>
-        <span className="brand-name">TravelHub</span>
+        <img className="travelhub-logo" src={travelHubLogo} alt="TravelHub" />
       </div>
       <ul>
         <li><Link to="/home">Home</Link></li>
@@ -59,12 +55,7 @@ function Navbar() {
 
     <nav className="wrapper web-nav">
       <div className="brand-logo">
-        <svg className="globe-icon" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="2" y1="12" x2="22" y2="12"></line>
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-        </svg>
-        <span className="brand-name">TravelHub</span>
+        <img className="travelhub-logo" src={travelHubLogo} alt="TravelHub" />
       </div>
       <ul>
         <li><Link to="/home">Home</Link></li>

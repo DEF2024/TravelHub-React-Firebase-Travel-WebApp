@@ -203,19 +203,25 @@ export default function DestinationsCMS() {
   };
 
   return (
-    <main className="cms-page">
-      <div className="cms-container">
-        <Link className="planner-back-link" to="/admin">← Admin dashboard</Link>
-        <header className="cms-header">
-          <div>
-            <h1>Destinations</h1>
-            <p className="cms-count">{items.filter((destination) => destination.published).length} published, {items.length} total</p>
-          </div>
-          <button type="button" onClick={openNew} className="cms-primary-button">+ Add destination</button>
-        </header>
+    <main className="portal-page admin-portal-page cms-page">
+      <header className="portal-page-heading">
+        <div>
+          <p className="portal-eyebrow">TRAVELHUB CONTENT MANAGEMENT</p>
+          <h1>Destinations CRUD</h1>
+          <p>Add places, update destination details, and manage published content.</p>
+        </div>
+        <button type="button" onClick={openNew} className="portal-primary-button">＋ Add Destination</button>
+      </header>
 
-        {error && !editing && <p className="cms-error" role="alert">{error}</p>}
-        <section className="cms-category-manager" aria-labelledby="categories-heading">
+      {error && !editing && <p className="portal-error" role="alert">{error}</p>}
+
+      <section className="portal-admin-stats" aria-label="Destination summary">
+        <article><span>Total destinations</span><strong>{items.length}</strong><small>{items.length ? "Synced with Firestore" : "No destination records yet"}</small></article>
+        <article><span>Published</span><strong>{items.filter((destination) => destination.published).length}</strong><small>Visible on the travel site</small></article>
+        <article><span>Categories</span><strong>{categories.length}</strong><small>Available destination filters</small></article>
+      </section>
+
+        <section className="portal-content-panel cms-category-manager" aria-labelledby="categories-heading">
           <div>
             <h2 id="categories-heading">Categories</h2>
             <p>Create reusable categories for destination filters.</p>
@@ -237,6 +243,10 @@ export default function DestinationsCMS() {
           </ul>
         </section>
 
+      <section className="portal-content-panel portal-admin-table-panel">
+        <div className="portal-section-heading">
+          <div><h2>Destination content</h2><p>Search, publish, feature, edit, and remove destination records.</p></div>
+        </div>
         <div className="cms-search">
           <label className="cms-label" htmlFor="destination-search">Search destinations</label>
           <input id="destination-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by name, region or category" className="cms-input" />
@@ -244,8 +254,8 @@ export default function DestinationsCMS() {
 
         {loading && <p role="status">Loading destinations…</p>}
         {!loading && (
-          <div className="cms-table-wrap">
-            <table className="cms-table">
+          <div className="portal-table-scroll cms-table-wrap">
+            <table className="portal-table cms-table">
               <thead>
                 <tr>
                   <th>Destination</th><th>Category</th><th>State &amp; City</th><th>Accessibility</th><th>Featured</th><th>Actions</th>
@@ -293,6 +303,7 @@ export default function DestinationsCMS() {
             {!visible.length && <p className="cms-empty">{items.length ? "No destinations match your search." : "No destinations yet. Add your first destination."}</p>}
           </div>
         )}
+      </section>
 
         {editing !== null && (
           <div className="cms-modal-backdrop" role="dialog" aria-modal="true" aria-label={editing === "new" ? "Add destination" : "Edit destination"}>
@@ -352,7 +363,6 @@ export default function DestinationsCMS() {
             </form>
           </div>
         )}
-      </div>
     </main>
   );
 }
